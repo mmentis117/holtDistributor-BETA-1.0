@@ -404,11 +404,11 @@ public class holtDistributorFunctions {
 		}
 	}
 
-	public static void deleteOrderAndItemInfo(Statement myStmt, int Vender_Number, int Item_Number)
+	public static void deleteOrderAndItemInfo(Statement myStmt, int Order_Number, int Item_Number)
 	{
 		try {
 			// 3. Execute SQL Query
-			myStmt.executeUpdate(SQLstatements.deleteOrderAndItemInfo(Vender_Number, Item_Number));
+			myStmt.executeUpdate(SQLstatements.deleteOrderAndItemInfo(Order_Number, Item_Number));
 		} catch (SQLException e) {
 			AlertBox alertbox = new AlertBox();
 			alertbox.display("Invalid Entry", e.toString());
@@ -596,6 +596,44 @@ public class holtDistributorFunctions {
 		}
 	}
 	
+	public static String getCustomerNameByCustomerNumber(Statement myStmt, int Customer_Number)
+	{
+		try {
+			// 3. Execute SQL Query
+			ResultSet myRs = myStmt.executeQuery(SQLstatements.getCustomerNameByCustomerNumber(Customer_Number));
+
+			// 4. Process the result set
+			String customerName = "";
+			while(myRs.next()){
+				customerName = (myRs.getString("Customer_sold_to_name"));
+			}
+			return customerName;
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+			return "";
+		}
+	}
+	
+	public static String getItemDescriptionByNumber(Statement myStmt, int Item_Number)
+	{
+		try {
+			// 3. Execute SQL Query
+			ResultSet myRs = myStmt.executeQuery(SQLstatements.getItemDescriptionByNumber(Item_Number));
+
+			// 4. Process the result set
+			String customerName = "";
+			while(myRs.next()){
+				customerName = (myRs.getString("Item_Description"));
+			}
+			return customerName;
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+			return "";
+		}
+	}
+	
 	public static int getInvoiceNumber(Statement myStmt, String invoice_date, int order_number, float ship_charge, float tax)
 	{
 		try {
@@ -645,6 +683,25 @@ public class holtDistributorFunctions {
 				repNumber = Integer.parseInt(myRs.getString("Customer_sold_to_rep_number"));
 			}
 			return repNumber;
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+			return -1;
+		}
+	}
+	
+	public static float getCustomerBalance(Statement myStmt, int Customer_Number)
+	{
+		try {
+			// 3. Execute SQL Query
+			ResultSet myRs = myStmt.executeQuery(SQLstatements.getCustomerBalance(Customer_Number));
+
+			// 4. Process the result set
+			float balance = -1;
+			while(myRs.next()){
+				balance = Float.parseFloat(myRs.getString("Customer_balance"));
+			}
+			return balance;
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
@@ -1427,6 +1484,69 @@ public class holtDistributorFunctions {
 			Columns.add("units_on_hand");
 			Columns.add("units_allocated");
 			Columns.add("reorder_point");
+			String dataArray[][] = new String[100][100];
+			int i =0;
+			for(String column : Columns)
+			{			
+				dataArray[0][i] = column;
+				i++;
+			}
+			for(int j =1; myRs.next(); j++) {
+				for(i =0; i < Columns.size(); i++){
+					dataArray[j][i] = myRs.getString(Columns.get(i));
+				}
+			}
+			return dataArray;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public static String[][] getCustomerInvoiceTable(Statement myStmt, String orderSelection)
+	{
+		try {
+			// 3. Execute SQL Query
+			ResultSet myRs = myStmt.executeQuery(SQLstatements.getCustomerInvoiceTable(orderSelection));
+
+			// 4. Process the result set
+			ArrayList<String> Columns = new ArrayList<String>();
+			Columns.add("Invoice_Number");
+			Columns.add("invoice_date");
+			Columns.add("order_number");
+			Columns.add("ship_charge");
+			Columns.add("tax");
+			Columns.add("total");
+			String dataArray[][] = new String[100][100];
+			int i =0;
+			for(String column : Columns)
+			{			
+				dataArray[0][i] = column;
+				i++;
+			}
+			for(int j =1; myRs.next(); j++) {
+				for(i =0; i < Columns.size(); i++){
+					dataArray[j][i] = myRs.getString(Columns.get(i));
+				}
+			}
+			return dataArray;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public static String[][] getOrderNumbers(Statement myStmt, String Customer_sold_to_name)
+	{
+		try {
+			// 3. Execute SQL Query
+			ResultSet myRs = myStmt.executeQuery(SQLstatements.getOrderNumbers(Customer_sold_to_name));
+
+			// 4. Process the result set
+			ArrayList<String> Columns = new ArrayList<String>();
+			Columns.add("Order_Number");
 			String dataArray[][] = new String[100][100];
 			int i =0;
 			for(String column : Columns)

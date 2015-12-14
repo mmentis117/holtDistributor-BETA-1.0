@@ -405,6 +405,11 @@ public class SQLstatements {
 		return "SELECT * FROM holtdistributors.customersalesinfo where Customer_Number = "+Customer_Number+";";
 	}
 	
+	public static String getCustomerBalance(int Customer_Number)
+	{
+		return "SELECT Customer_balance FROM holtdistributors.customersalesinfo where Customer_Number = "+Customer_Number+";";
+	}
+	
 	public static String getCustomerBasicTable(int Customer_Number)
 	{
 		return "SELECT * FROM holtdistributors.customerbasicinfo where Customer_Number = "+Customer_Number+";";
@@ -413,6 +418,16 @@ public class SQLstatements {
 	public static String getOrderNumber(String Customer_sold_to_name)
 	{
 		return "SELECT Order_Number FROM holtdistributors.orderinfo where Customer_sold_to_name = '"+Customer_sold_to_name+"';";
+	}
+	
+	public static String getOrderNumbers(String Customer_sold_to_name)
+	{
+		return "SELECT Order_Number FROM holtdistributors.orderinfo where Customer_sold_to_name = '"+Customer_sold_to_name+"';";
+	}
+	
+	public static String getCustomerNameByCustomerNumber(int Customer_Number)
+	{
+		return "SELECT Customer_sold_to_name FROM holtdistributors.customerbasicinfo where Customer_Number = "+Customer_Number+";";
 	}
 	
 	public static String getCustomerNameByOrderNumber(int Order_Number)
@@ -441,9 +456,19 @@ public class SQLstatements {
 		return "SELECT total FROM holtdistributors.invoice where Invoice_Number = "+Invoice_Number+";";
 	}
 	
+	public static String getCustomerInvoiceTable(String orderSelection)
+	{
+		return "SELECT * FROM holtdistributors.invoice where "+orderSelection+";";
+	}
+	
 	public static String getOrderItemInfo(int Order_Number)
 	{
 		return "SELECT * FROM holtdistributors.orderanditeminfo where Order_Number = "+Order_Number+";";
+	}
+	
+	public static String getItemDescriptionByNumber(int Item_Number)
+	{
+		return "SELECT Item_Description FROM holtdistributors.itembasicinfo where Item_Number = "+Item_Number+";";
 	}
 	
 	public static String getItemSalesInfo(int Item_Number)
