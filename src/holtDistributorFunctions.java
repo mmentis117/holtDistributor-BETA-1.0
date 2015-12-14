@@ -64,6 +64,18 @@ public class holtDistributorFunctions {
 		}
 	}
 	
+	public static void updateSalesRepSalesInfoByNumber(Statement myStmt, int Sales_rep_number, float MTD_sales, float YTD_sales, float MTD_commission, float YTD_commission)
+	{
+		try {
+			// 3. Execute SQL Query
+			myStmt.executeUpdate(SQLstatements.updateSalesRepSalesInfoByNumber(Sales_rep_number, MTD_sales, YTD_sales, MTD_commission, YTD_commission));
+		} catch (SQLException e) {
+			AlertBox alertbox = new AlertBox();
+			alertbox.display("Invalid Entry", e.toString());
+			e.printStackTrace();
+		}
+	}
+	
 	public static void updateSalesRepSalesInfoByNumber(Statement myStmt, int Sales_rep_number, float MTD_sales, float YTD_sales)
 	{
 		try {
@@ -702,6 +714,44 @@ public class holtDistributorFunctions {
 				balance = Float.parseFloat(myRs.getString("Customer_balance"));
 			}
 			return balance;
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+			return -1;
+		}
+	}
+	
+	public static int checkSalesRepTableSalesNumber(Statement myStmt, int territory_number)
+	{
+		try {
+			// 3. Execute SQL Query
+			ResultSet myRs = myStmt.executeQuery(SQLstatements.checkSalesRepTableSalesNumber(territory_number));
+
+			// 4. Process the result set
+			int repNumber = -1;
+			while(myRs.next()){
+				repNumber = Integer.parseInt(myRs.getString("Sales_rep_number"));
+			}
+			return repNumber;
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+			return -1;
+		}
+	}
+	
+	public static int checkCustomerBasicTableSalesNumber(Statement myStmt, int Customer_sold_to_rep_number)
+	{
+		try {
+			// 3. Execute SQL Query
+			ResultSet myRs = myStmt.executeQuery(SQLstatements.checkCustomerBasicTableSalesNumber(Customer_sold_to_rep_number));
+
+			// 4. Process the result set
+			int repNumber = -1;
+			while(myRs.next()){
+				repNumber = Integer.parseInt(myRs.getString("Customer_Number"));
+			}
+			return repNumber;
 		}
 		catch (SQLException e) {
 			e.printStackTrace();

@@ -164,13 +164,21 @@ public class customerBranch implements EventHandler<ActionEvent> {
 			{
 				SelectStatement = SelectStatement + " order_number = " + orderNumbers2 + " or";
 			}
-			SelectStatement = SelectStatement.substring(0, SelectStatement.length() - 2);
+			if(!SelectStatement.equalsIgnoreCase(""))
+			{
+				SelectStatement = SelectStatement.substring(0, SelectStatement.length() - 2);
 			
-			//get invoices
-			String[][] customerInvoiceTable = holtDistributorFunctions.getCustomerInvoiceTable(driverUsed.myStmt, SelectStatement);
+				//get invoices
+				String[][] customerInvoiceTable = holtDistributorFunctions.getCustomerInvoiceTable(driverUsed.myStmt, SelectStatement);
 			
-			createTableLayout(customerInvoiceTable);
-			driverUsed.window.setScene(TableScene);
+				createTableLayout(customerInvoiceTable);
+				driverUsed.window.setScene(TableScene);
+			}
+			else
+			{
+				AlertBox alertbox = new AlertBox();
+				alertbox.display("No Invoice", "No Invoices Available.");
+			}
 //			
 			
 			

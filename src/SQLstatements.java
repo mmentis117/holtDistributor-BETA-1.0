@@ -104,6 +104,12 @@ public class SQLstatements {
 				+ " YTD_commission = "+YTD_commission+", Commission_rate = "+Commission_rate+" where Sales_rep_number = "+Sales_rep_number+";";
 	}
 	
+	public static String updateSalesRepSalesInfoByNumber(int Sales_rep_number, float MTD_sales, float YTD_sales,  float MTD_commission, float YTD_commission)
+	{
+		return "update salespersonsalesinfo set MTD_sales = "+MTD_sales+", YTD_sales = "+YTD_sales+", MTD_commission = "+MTD_commission+","
+				+ " YTD_commission = "+YTD_commission+" where Sales_rep_number = "+Sales_rep_number+";";
+	}
+	
 	public static String updateSalesRepSalesInfoByNumber(int Sales_rep_number, float MTD_sales, float YTD_sales)
 	{
 		return "update salespersonsalesinfo set MTD_sales = "+MTD_sales+", YTD_sales = "+YTD_sales+" where Sales_rep_number = "+Sales_rep_number+";";
@@ -474,6 +480,16 @@ public class SQLstatements {
 	public static String getItemSalesInfo(int Item_Number)
 	{
 		return "SELECT * FROM holtdistributors.itemsalesinfo where Item_Number = "+Item_Number+";";
+	}
+	
+	public static String checkSalesRepTableSalesNumber(int territory_number)
+	{
+		return "SELECT Sales_rep_number FROM holtdistributors.salespersonbasicinfo where territory_number = "+territory_number+";";
+	}
+	
+	public static String checkCustomerBasicTableSalesNumber(int Customer_sold_to_rep_number)
+	{
+		return "SELECT Customer_Number FROM holtdistributors.customerbasicinfo where Customer_sold_to_rep_number = "+Customer_sold_to_rep_number+";";
 	}
 	
 

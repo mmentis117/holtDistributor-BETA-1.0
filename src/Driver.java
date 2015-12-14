@@ -737,8 +737,19 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 					//Table Scene Layout
 					String territoryNum = comboBoxList.get(0).getValue();
 					territoryNum = territoryNum.substring(0 , territoryNum.indexOf(' '));
-					holtDistributorFunctions.deleteTerritory(myStmt,  Integer.parseInt(territoryNum), textFields.get(0).getText());
-					reset();
+					
+					//Check if territory is linked to a sales representative
+					int salesRepCheck = holtDistributorFunctions.checkSalesRepTableSalesNumber(myStmt, Integer.parseInt(territoryNum));
+					if(salesRepCheck == -1)
+					{
+						holtDistributorFunctions.deleteTerritory(myStmt,  Integer.parseInt(territoryNum), textFields.get(0).getText());
+						reset();
+					}
+					else
+					{
+						AlertBox alertbox = new AlertBox();
+						alertbox.display("Invalid Entry", "You cannot delete that territory is linked to sales rep number : "+ salesRepCheck);
+					}
 				}
 				catch(Exception exc){
 					AlertBox alertbox = new AlertBox();
@@ -793,9 +804,20 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 				try{
 					String salesRepNum = comboBoxList.get(0).getValue();
 					salesRepNum = salesRepNum.substring(0 , salesRepNum.indexOf(' '));
-					//Table Scene Layout
-					holtDistributorFunctions.deleteSalesRepBasicInfo(myStmt, Integer.parseInt(salesRepNum), textFields.get(1).getText());
-					reset();
+					
+					//Check if sales representative is linked to customer
+					int customerNumberCheck = holtDistributorFunctions.checkCustomerBasicTableSalesNumber(myStmt, Integer.parseInt(salesRepNum));
+					if(customerNumberCheck == -1)
+					{
+						//Table Scene Layout
+						holtDistributorFunctions.deleteSalesRepBasicInfo(myStmt, Integer.parseInt(salesRepNum), textFields.get(0).getText());
+						reset();
+					}
+					else
+					{
+						AlertBox alertbox = new AlertBox();
+						alertbox.display("Invalid Entry", "You cannot delete that sales rep is linked to customer number : "+ customerNumberCheck);
+					}
 				}
 				catch(Exception exc){
 					AlertBox alertbox = new AlertBox();
@@ -1262,8 +1284,11 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 
 						//get Sales Rep Sales Info
 						String salesRepSalesInfo[][] = holtDistributorFunctions.getSalesRepSalesTable(myStmt, repNumber);
-						float salesRepMTDsales = Float.parseFloat(salesRepSalesInfo[1][1]);//Customer MTD Sales
-						float salesRepYTDSales= Float.parseFloat(salesRepSalesInfo[1][2]);//Customer YTD Sales
+						float salesRepMTDsales = Float.parseFloat(salesRepSalesInfo[1][1]);// Sales Rep MTD Sales
+						float salesRepYTDSales= Float.parseFloat(salesRepSalesInfo[1][2]);// Sales Rep YTD Sales
+						//float salesRepMTDCommission = Float.parseFloat(salesRepSalesInfo[1][3]);// Sales Rep MTD Commission
+						//float salesRepYTDCommission = Float.parseFloat(salesRepSalesInfo[1][4]);// Sales Rep YTD Commission
+						float salesRepCommissionRate = Float.parseFloat(salesRepSalesInfo[1][5]);// Sales Rep Commission Rate
 
 						//Get Invoice Table invoice total
 						float invoiceTableTotal = 0;		
@@ -1346,7 +1371,8 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 								customerYTDSales + shipCharge + tax  , customerBalance + shipCharge + tax,  customerTotalInvoice + shipCharge + tax );
 
 						//Update Sales Rep MTD Sales, YTD Sales (shipping and tax values)
-						holtDistributorFunctions.updateSalesRepSalesInfoByNumber(myStmt, repNumber, salesRepMTDsales + shipCharge + tax, salesRepYTDSales + shipCharge + tax);
+						holtDistributorFunctions.updateSalesRepSalesInfoByNumber(myStmt, repNumber, salesRepMTDsales + shipCharge + tax, salesRepYTDSales + shipCharge + tax,
+								(salesRepMTDsales + shipCharge + tax)*salesRepCommissionRate, (salesRepYTDSales + shipCharge + tax)*salesRepCommissionRate);
 
 						//Update Invoice Table invoice total (shipping and tax values)
 						holtDistributorFunctions.updateInvoiceInfoByNumber(myStmt, invoiceNumber, invoiceTableTotal + shipCharge + tax);
@@ -1467,7 +1493,7 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 		MonthlyCashReceiptJournalButton = new Button("Monthly Cash Receipt Journal");
 		GridPane.setConstraints(MonthlyCashReceiptJournalButton, 2, 4);
 		
-		sendThroughInvoice = new Button("Send Through Invoice");
+		sendThroughInvoice = new Button("Release Order");
 		GridPane.setConstraints(sendThroughInvoice, 3, 1);
 
 		CustomerMailingLabelInfoButton = new Button("Customer Mailing Label Info");
@@ -1560,16 +1586,16 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 
 		Label vendersAndItemsLabel = new Label("Vender/Item Info");
 		vendersAndItemsLabel.setFont(new Font("Arial", 16));
-		GridPane.setConstraints(vendersAndItemsLabel, 0, 20);
+		GridPane.setConstraints(vendersAndItemsLabel, 2, 13);
 
 		insertVenderItemInfo = new Button("Insert Vender/Item Info");
-		GridPane.setConstraints(insertVenderItemInfo, 0, 21);
+		GridPane.setConstraints(insertVenderItemInfo, 2, 14);
 
 		updateVenderItemInfo = new Button("Update Vender/Item Info");
-		GridPane.setConstraints(updateVenderItemInfo, 0, 22);
+		GridPane.setConstraints(updateVenderItemInfo, 2, 15);
 
 		deleteVenderItemInfo = new Button("Delete Vender/Item Info");
-		GridPane.setConstraints(deleteVenderItemInfo, 0, 23);
+		GridPane.setConstraints(deleteVenderItemInfo, 2, 16);
 
 		Label ordersLabel = new Label("Orders");
 		ordersLabel.setFont(new Font("Arial", 16));
@@ -1611,33 +1637,26 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 		GridPane.setConstraints(deleteOrderItemInfo, 1, 23);
 		
 		backToStartButton = new Button("Back");
-		GridPane.setConstraints(backToStartButton, 2, 24);
-//		
-//		LabelcustomerOrdersLabel = new Label("Order/Item Info");
-//		ordersAndItemsLabel.setFont(new Font("Arial", 16));
-//		GridPane.setConstraints(ordersAndItemsLabel, 1, 20);
-//
-//		insertOrderItemInfo = new Button("Insert Order/Item Info");
-//		GridPane.setConstraints(insertOrderItemInfo, 1, 21);
-//
-//		updateOrderItemInfo = new Button("Update Order/Item Info");
-//		GridPane.setConstraints(updateOrderItemInfo, 1, 22);
-//
-//		deleteOrderItemInfo = new Button("Delete Order/Item Info");
-//		GridPane.setConstraints(deleteOrderItemInfo, 1, 23);
+		GridPane.setConstraints(backToStartButton, 2, 20);
 
 		buttonLayerLayout.getChildren().addAll(specialReportsLabel, territoryListButton, customerMasterListButton, customerOpenOrderReportButton, ItemOpenOrderReportButton,
 				DailyInvoiceReportButton, MonthlyInvoiceReportButton, StockStatusReportButton, ReorderPointListButton, VenderListButton, DailyCashReceiptJournalButton, 
 				MonthlyCashReceiptJournalButton, sendThroughInvoice, CustomerMailingLabelInfoButton, MonthlySalesRepCommissionReportButton, dataTransactionsLabel,territoryLabel, insertTerritory, updateTerritory, 
 				deleteTerritory,salesRepsLabel, insertSalesRepInfo, updateSalesRepInfo, deleteSalesRepInfo,customersLabel, insertCustomerInfo, updateCustomerInfo, deleteCustomerInfo,itemsLabel, insertItemInfo, 
-				updateItemInfo, deleteItemInfo,vendersLabel, insertVenderInfo, updateVenderInfo, deleteVenderInfo,vendersAndItemsLabel, insertVenderItemInfo, updateVenderItemInfo,  deleteVenderItemInfo, 
-				ordersLabel, insertOrderInfo, updateOrderInfo, deleteOrderInfo, ordersAndItemsLabel, insertOrderItemInfo, updateOrderItemInfo, deleteOrderItemInfo, invoicesLabel, insertInvoiceInfo, updateInvoiceInfo, deleteInvoiceInfo,
-				paymentsLabel, insertPaymentInfo, updatePaymentInfo, deletePaymentInfo, backToStartButton);
+				updateItemInfo, deleteItemInfo,vendersLabel, insertVenderInfo, updateVenderInfo, deleteVenderInfo,vendersAndItemsLabel, insertVenderItemInfo, updateVenderItemInfo,  deleteVenderItemInfo, backToStartButton);
+		
+		//Buttons Taken out insertOrderInfo, updateOrderInfo, deleteOrderInfo, insertOrderItemInfo, updateOrderItemInfo, deleteOrderItemInfo, insertInvoiceInfo, updateInvoiceInfo, deleteInvoiceInfo,
+		//insertPaymentInfo, updatePaymentInfo, deletePaymentInfo,
+		//paymentsLabel, 
+		//ordersAndItemsLabel, 
+		//invoicesLabel, 
+		//ordersLabel
+		
 
 		BorderPane layout4 = new BorderPane();
 		layout4.setTop(titleLayerLayout);
 		layout4.setCenter(buttonLayerLayout);
-		HomeScene = new Scene(layout4, 800, 800);
+		HomeScene = new Scene(layout4, 850, 600);
 
 		//This class will handle the button events
 		territoryListButton.setOnAction(this);
