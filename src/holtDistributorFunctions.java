@@ -27,11 +27,11 @@ public class holtDistributorFunctions {
 		}
 	}
 
-	public static void deleteTerritory(Statement myStmt, int territory_number, String territory_name)
+	public static void deleteTerritory(Statement myStmt, int territory_number)
 	{
 		try {
 			// 3. Execute SQL Query
-			myStmt.executeUpdate(SQLstatements.deleteTerritory(territory_number, territory_name));
+			myStmt.executeUpdate(SQLstatements.deleteTerritory(territory_number));
 		} catch (SQLException e) {
 			AlertBox alertbox = new AlertBox();
 			alertbox.display("Invalid Entry", e.toString());
@@ -63,7 +63,7 @@ public class holtDistributorFunctions {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static void updateSalesRepSalesInfoByNumber(Statement myStmt, int Sales_rep_number, float MTD_sales, float YTD_sales, float MTD_commission, float YTD_commission)
 	{
 		try {
@@ -75,7 +75,7 @@ public class holtDistributorFunctions {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static void updateSalesRepSalesInfoByNumber(Statement myStmt, int Sales_rep_number, float MTD_sales, float YTD_sales)
 	{
 		try {
@@ -112,11 +112,11 @@ public class holtDistributorFunctions {
 		}
 	}
 
-	public static void deleteSalesRepBasicInfo(Statement myStmt, int Sales_rep_number, String rep_name)
+	public static void deleteSalesRepBasicInfo(Statement myStmt, int Sales_rep_number)
 	{
 		try {
 			// 3. Execute SQL Query
-			myStmt.executeUpdate(SQLstatements.deleteSalesRepBasicInfo(Sales_rep_number, rep_name));
+			myStmt.executeUpdate(SQLstatements.deleteSalesRepBasicInfo(Sales_rep_number));
 		} catch (SQLException e) {
 			AlertBox alertbox = new AlertBox();
 			alertbox.display("Invalid Entry", e.toString());
@@ -151,11 +151,11 @@ public class holtDistributorFunctions {
 		}
 	}
 
-	public static void deleteCustomerBasicInfo(Statement myStmt, int Customer_Number, String Customer_sold_to_name)
+	public static void deleteCustomerBasicInfo(Statement myStmt, int Customer_Number)
 	{
 		try {
 			// 3. Execute SQL Query
-			myStmt.executeUpdate(SQLstatements.deleteCustomerBasicInfo(Customer_Number, Customer_sold_to_name));
+			myStmt.executeUpdate(SQLstatements.deleteCustomerBasicInfo(Customer_Number));
 		} catch (SQLException e) {
 			AlertBox alertbox = new AlertBox();
 			alertbox.display("Invalid Entry", e.toString());
@@ -189,7 +189,7 @@ public class holtDistributorFunctions {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static void updateCustomerSalesInfoByNumber(Statement myStmt, int Customer_Number, float Customer_MTD_sales , float Customer_YTD_sales, 
 			float Customer_balance, float Customer_total_invoice)
 	{
@@ -303,11 +303,11 @@ public class holtDistributorFunctions {
 		}
 	}
 
-	public static void deleteVenderBasicInfo(Statement myStmt, int Vender_Number, String vender_name)
+	public static void deleteVenderBasicInfo(Statement myStmt, int Vender_Number)
 	{
 		try {
 			// 3. Execute SQL Query
-			myStmt.executeUpdate(SQLstatements.deleteVenderBasicInfo(Vender_Number, vender_name));
+			myStmt.executeUpdate(SQLstatements.deleteVenderBasicInfo(Vender_Number));
 		} catch (SQLException e) {
 			AlertBox alertbox = new AlertBox();
 			alertbox.display("Invalid Entry", e.toString());
@@ -451,7 +451,7 @@ public class holtDistributorFunctions {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static void updateInvoiceInfoByNumber(Statement myStmt, int Invoice_Number, float total)
 	{
 		try {
@@ -511,7 +511,7 @@ public class holtDistributorFunctions {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static void insertCustomerLoginBasicInfo(Statement myStmt, String Customer_sold_to_name , String Customer_sold_to_address_line_1, 
 			String Customer_sold_to_address_line_2, String Customer_sold_to_city, String Customer_sold_to_state, int Customer_sold_to_zip, int Customer_sold_to_rep_number)
 	{
@@ -525,7 +525,7 @@ public class holtDistributorFunctions {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static void insertCustomerLoginSalesInfo(Statement myStmt,float Customer_MTD_sales , float Customer_YTD_sales, 
 			float Customer_balance, float Customer_credit_limits, float Customer_total_invoice, float Customer_payment)
 	{
@@ -538,7 +538,7 @@ public class holtDistributorFunctions {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static void insertUserLoginInfo(Statement myStmt, int Customer_Number , String username, String password)
 	{
 		try {
@@ -550,7 +550,7 @@ public class holtDistributorFunctions {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static int getCustomerNumber(Statement myStmt, String customerName)
 	{
 		try {
@@ -569,7 +569,7 @@ public class holtDistributorFunctions {
 			return -1;
 		}
 	}
-	
+
 	public static int getOrderNumber(Statement myStmt, String customerName)
 	{
 		try {
@@ -588,7 +588,7 @@ public class holtDistributorFunctions {
 			return -1;
 		}
 	}
-	
+
 	public static String getCustomerNameByOrderNumber(Statement myStmt, int Order_Number)
 	{
 		try {
@@ -607,7 +607,7 @@ public class holtDistributorFunctions {
 			return "";
 		}
 	}
-	
+
 	public static String getCustomerNameByCustomerNumber(Statement myStmt, int Customer_Number)
 	{
 		try {
@@ -626,7 +626,7 @@ public class holtDistributorFunctions {
 			return "";
 		}
 	}
-	
+
 	public static String getItemDescriptionByNumber(Statement myStmt, int Item_Number)
 	{
 		try {
@@ -645,7 +645,7 @@ public class holtDistributorFunctions {
 			return "";
 		}
 	}
-	
+
 	public static int getInvoiceNumber(Statement myStmt, String invoice_date, int order_number, float ship_charge, float tax)
 	{
 		try {
@@ -682,7 +682,45 @@ public class holtDistributorFunctions {
 			return -1;
 		}
 	}
-	
+
+	public static int getTerritoryNumberFromSalesRepTable(Statement myStmt, int Sales_rep_number)
+	{
+		try {
+			// 3. Execute SQL Query
+			ResultSet myRs = myStmt.executeQuery(SQLstatements.getTerritoryNumberFromSalesRepTable(Sales_rep_number));
+
+			// 4. Process the result set
+			int repNumber = -1;
+			while(myRs.next()){
+				repNumber = Integer.parseInt(myRs.getString("territory_number"));
+			}
+			return repNumber;
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+			return -1;
+		}
+	}
+
+	public static String getTerritoryNameFromTerritoryNumber(Statement myStmt, int Territory_Number)
+	{
+		try {
+			// 3. Execute SQL Query
+			ResultSet myRs = myStmt.executeQuery(SQLstatements.getTerritoryNameFromTerritoryNumber(Territory_Number));
+
+			// 4. Process the result set
+			String territoryName = "";
+			while(myRs.next()){
+				territoryName = myRs.getString("Territory_name");
+			}
+			return territoryName;
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+			return "";
+		}
+	}
+
 	public static int getCustomerSalesRepNumber(Statement myStmt, int Customer_Number)
 	{
 		try {
@@ -701,7 +739,7 @@ public class holtDistributorFunctions {
 			return -1;
 		}
 	}
-	
+
 	public static float getCustomerBalance(Statement myStmt, int Customer_Number)
 	{
 		try {
@@ -720,7 +758,7 @@ public class holtDistributorFunctions {
 			return -1;
 		}
 	}
-	
+
 	public static int checkSalesRepTableSalesNumber(Statement myStmt, int territory_number)
 	{
 		try {
@@ -739,7 +777,7 @@ public class holtDistributorFunctions {
 			return -1;
 		}
 	}
-	
+
 	public static int checkCustomerBasicTableSalesNumber(Statement myStmt, int Customer_sold_to_rep_number)
 	{
 		try {
@@ -758,7 +796,83 @@ public class holtDistributorFunctions {
 			return -1;
 		}
 	}
-	
+
+	public static int checkOrderInfoTableItemNumber(Statement myStmt, int Item_Number)
+	{
+		try {
+			// 3. Execute SQL Query
+			ResultSet myRs = myStmt.executeQuery(SQLstatements.checkOrderInfoTableItemNumber(Item_Number));
+
+			// 4. Process the result set
+			int itemNumber = -1;
+			while(myRs.next()){
+				itemNumber = Integer.parseInt(myRs.getString("Order_Number"));
+			}
+			return itemNumber;
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+			return -1;
+		}
+	}
+
+	public static int checkOrderTableCustomerName(Statement myStmt, String Customer_sold_to_name)
+	{
+		try {
+			// 3. Execute SQL Query
+			ResultSet myRs = myStmt.executeQuery(SQLstatements.checkOrderTableCustomerName(Customer_sold_to_name));
+
+			// 4. Process the result set
+			int itemNumber = -1;
+			while(myRs.next()){
+				itemNumber = Integer.parseInt(myRs.getString("Order_Number"));
+			}
+			return itemNumber;
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+			return -1;
+		}
+	}
+
+	public static int checkVenderItemTableItemNumber(Statement myStmt, int Item_Number)
+	{
+		try {
+			// 3. Execute SQL Query
+			ResultSet myRs = myStmt.executeQuery(SQLstatements.checkVenderItemTableItemNumber(Item_Number));
+
+			// 4. Process the result set
+			int itemNumber = -1;
+			while(myRs.next()){
+				itemNumber = Integer.parseInt(myRs.getString("Item_Number"));
+			}
+			return itemNumber;
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+			return -1;
+		}
+	}
+
+	public static int checkVenderTableVenderNumber(Statement myStmt, int Vender_Number)
+	{
+		try {
+			// 3. Execute SQL Query
+			ResultSet myRs = myStmt.executeQuery(SQLstatements.checkVenderTableVenderNumber(Vender_Number));
+
+			// 4. Process the result set
+			int itemNumber = -1;
+			while(myRs.next()){
+				itemNumber = Integer.parseInt(myRs.getString("Item_Number"));
+			}
+			return itemNumber;
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+			return -1;
+		}
+	}
+
 	public static void sendThroughCustomerInvoiceInfo(Statement myStmt, String invoice_date, int order_number, float ship_charge, float tax, float total)
 	{
 		try {
@@ -770,7 +884,7 @@ public class holtDistributorFunctions {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static void updateQuantityShipped(Statement myStmt, int item_quantity_shipped, int Order_Number, int Item_Number)
 	{
 		try {
@@ -782,8 +896,30 @@ public class holtDistributorFunctions {
 			e.printStackTrace();
 		}
 	}
-	
-	
+
+	public static void resetMTDvalues(Statement myStmt)
+	{
+		try {
+			// 3. Execute SQL Query
+			myStmt.executeUpdate(SQLstatements.resetMTDvalues);
+		} catch (SQLException e) {
+			AlertBox alertbox = new AlertBox();
+			alertbox.display("Invalid Entry", e.toString());
+			e.printStackTrace();
+		}
+	}
+
+	public static void resetYTDvalues(Statement myStmt)
+	{
+		try {
+			// 3. Execute SQL Query
+			myStmt.executeUpdate(SQLstatements.resetYTDvalues);
+		} catch (SQLException e) {
+			AlertBox alertbox = new AlertBox();
+			alertbox.display("Invalid Entry", e.toString());
+			e.printStackTrace();
+		}
+	}
 
 	public static String[][] getTerritoryList(Statement myStmt)
 	{
@@ -1245,7 +1381,7 @@ public class holtDistributorFunctions {
 			return null;
 		}
 	}
-	
+
 	public static String[][] getTerritoryTable(Statement myStmt)
 	{
 		try {
@@ -1275,7 +1411,42 @@ public class holtDistributorFunctions {
 			return null;
 		}
 	}
-	
+
+	public static String[][] getCustomerSalesTable(Statement myStmt)
+	{
+		try {
+			// 3. Execute SQL Query
+			ResultSet myRs = myStmt.executeQuery(SQLstatements.getCustomerSalesTable);
+
+			// 4. Process the result set
+			ArrayList<String> Columns = new ArrayList<String>();
+			Columns.add("Customer_Number");
+			Columns.add("Customer_MTD_sales");
+			Columns.add("Customer_YTD_sales");
+			Columns.add("Customer_balance");
+			Columns.add("Customer_credit_limits");
+			Columns.add("Customer_total_invoice");
+			Columns.add("Customer_payment");
+			String dataArray[][] = new String[100][100];
+			int i =0;
+			for(String column : Columns)
+			{			
+				dataArray[0][i] = column;
+				i++;
+			}
+			for(int j =1; myRs.next(); j++) {
+				for(i =0; i < Columns.size(); i++){
+					dataArray[j][i] = myRs.getString(Columns.get(i));
+				}
+			}
+			return dataArray;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
 	public static String[][] getSalesRepBasicTable(Statement myStmt)
 	{
 		try {
@@ -1310,7 +1481,7 @@ public class holtDistributorFunctions {
 			return null;
 		}
 	}
-	
+
 	public static String[][] getCustomerBasicTable(Statement myStmt, int Customer_Number)
 	{
 		try {
@@ -1346,7 +1517,7 @@ public class holtDistributorFunctions {
 			return null;
 		}
 	}
-	
+
 	public static String[][] getCustomerSalesTable(Statement myStmt, int Customer_Number)
 	{
 		try {
@@ -1381,7 +1552,7 @@ public class holtDistributorFunctions {
 			return null;
 		}
 	}
-	
+
 	public static String[][] getOrderTable(Statement myStmt)
 	{
 		try {
@@ -1400,7 +1571,7 @@ public class holtDistributorFunctions {
 			Columns.add("Customer_ship_to_city");
 			Columns.add("Customer_ship_to_state");
 			Columns.add("Customer_ship_to_zip");
-			
+
 			String dataArray[][] = new String[100][100];
 			int i =0;
 			for(String column : Columns)
@@ -1420,6 +1591,78 @@ public class holtDistributorFunctions {
 			return null;
 		}
 	}
+
+	public static String[][] getVenderTable(Statement myStmt)
+	{
+		try {
+			// 3. Execute SQL Query
+			ResultSet myRs = myStmt.executeQuery(SQLstatements.getVenderTable);
+
+			// 4. Process the result set
+			ArrayList<String> Columns = new ArrayList<String>();
+			Columns.add("Vender_Number");
+			Columns.add("vender_name");
+			Columns.add("vender_address");
+			Columns.add("vender_city");
+			Columns.add("vender_state");
+			Columns.add("vender_zip");
+
+			String dataArray[][] = new String[100][100];
+			int i =0;
+			for(String column : Columns)
+			{			
+				dataArray[0][i] = column;
+				i++;
+			}
+			for(int j =1; myRs.next(); j++) {
+				for(i =0; i < Columns.size(); i++){
+					dataArray[j][i] = myRs.getString(Columns.get(i));
+				}
+			}
+			return dataArray;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	public static String[][] getCustomerTable(Statement myStmt)
+	{
+		try {
+			// 3. Execute SQL Query
+			ResultSet myRs = myStmt.executeQuery(SQLstatements.getCustomerTable);
+
+			// 4. Process the result set
+			ArrayList<String> Columns = new ArrayList<String>();
+			Columns.add("Customer_Number");
+			Columns.add("Customer_sold_to_name");
+			Columns.add("Customer_sold_to_address_line_1");
+			Columns.add("Customer_sold_to_address_line_2");
+			Columns.add("Customer_sold_to_city");
+			Columns.add("Customer_sold_to_state");
+			Columns.add("Customer_sold_to_zip");
+			Columns.add("Customer_sold_to_rep_number");
+
+			String dataArray[][] = new String[100][100];
+			int i =0;
+			for(String column : Columns)
+			{			
+				dataArray[0][i] = column;
+				i++;
+			}
+			for(int j =1; myRs.next(); j++) {
+				for(i =0; i < Columns.size(); i++){
+					dataArray[j][i] = myRs.getString(Columns.get(i));
+				}
+			}
+			return dataArray;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
 	public static String[][] getOrderItemInfo(Statement myStmt, int Order_Number)
 	{
 		try {
@@ -1433,7 +1676,7 @@ public class holtDistributorFunctions {
 			Columns.add("item_quantity_order");
 			Columns.add("item_quantity_shipped");
 			Columns.add("item_sales_price");
-			
+
 			String dataArray[][] = new String[100][100];
 			int i =0;
 			for(String column : Columns)
@@ -1453,7 +1696,7 @@ public class holtDistributorFunctions {
 			return null;
 		}
 	}
-	
+
 	public static String[][] getSalesRepSalesTable(Statement myStmt, int Sales_rep_number)
 	{
 		try {
@@ -1468,7 +1711,7 @@ public class holtDistributorFunctions {
 			Columns.add("MTD_commission");
 			Columns.add("YTD_commission");
 			Columns.add("Commission_rate");
-			
+
 			String dataArray[][] = new String[100][100];
 			int i =0;
 			for(String column : Columns)
@@ -1488,7 +1731,7 @@ public class holtDistributorFunctions {
 			return null;
 		}
 	}
-	
+
 	public static String[][] getItemBasicTable(Statement myStmt)
 	{
 		try {
@@ -1519,7 +1762,7 @@ public class holtDistributorFunctions {
 			return null;
 		}
 	}
-	
+
 	public static String[][] getItemSalesInfo(Statement myStmt, int Item_Number)
 	{
 		try {
@@ -1553,7 +1796,7 @@ public class holtDistributorFunctions {
 			return null;
 		}
 	}
-	
+
 	public static String[][] getCustomerInvoiceTable(Statement myStmt, String orderSelection)
 	{
 		try {
@@ -1587,7 +1830,7 @@ public class holtDistributorFunctions {
 			return null;
 		}
 	}
-	
+
 	public static String[][] getOrderNumbers(Statement myStmt, String Customer_sold_to_name)
 	{
 		try {
@@ -1616,7 +1859,7 @@ public class holtDistributorFunctions {
 			return null;
 		}
 	}
-	
+
 	public static String getUser(Statement myStmt)
 	{
 		try {

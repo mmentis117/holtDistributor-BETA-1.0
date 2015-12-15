@@ -61,6 +61,14 @@ public class SQLstatements {
 			+ "salespersonsalesinfo.Commission_rate from holtdistributors.salespersonbasicinfo, holtdistributors.salespersonsalesinfo where "
 			+ "salespersonbasicinfo.Sales_rep_number = salespersonsalesinfo.Sales_rep_number order by salespersonbasicinfo.Sales_rep_number;";
 
+	public static String resetMTDvalues = "update holtdistributors.customersalesinfo, holtdistributors.itemsalesinfo, holtdistributors.salespersonsalesinfo" 
+			+ " set customersalesinfo.Customer_MTD_sales = 0, itemsalesinfo.MTD_sales = 0, salespersonsalesinfo.MTD_sales =0, "
+			+" salespersonsalesinfo.MTD_commission  = 0;";
+
+	public static String resetYTDvalues = "update holtdistributors.customersalesinfo, holtdistributors.itemsalesinfo, holtdistributors.salespersonsalesinfo" 
+			+ " set customersalesinfo.Customer_YTD_sales = 0, itemsalesinfo.YTD_sales = 0, salespersonsalesinfo.YTD_sales =0, "
+			+" salespersonsalesinfo.YTD_commission  = 0;";
+
 	public static String insertTerritory(int territory_number, String territory_name)
 	{
 		return "insert into territories (territory_number, Territory_name) values ("+territory_number+", '"+territory_name+"');";
@@ -71,9 +79,9 @@ public class SQLstatements {
 		return "update territories set territories.territory_name = '"+territory_name+"' where territories.Territory_Number = '"+territory_number+"';";
 	}
 
-	public static String deleteTerritory(int territory_number, String territory_name)
+	public static String deleteTerritory(int territory_number)
 	{
-		return "delete from territories where territories.Territory_Number = "+territory_number+" or territories.Territory_name = '"+territory_name+"';";
+		return "delete from territories where territories.Territory_Number = "+territory_number+";";
 	}
 
 	public static String insertSalesRepBasicInfo(int Sales_rep_number, String rep_name, String rep_address, String rep_city, String rep_state, int rep_zip, int territory_number)
@@ -87,9 +95,9 @@ public class SQLstatements {
 		return "update salespersonbasicinfo set rep_name = '"+rep_name+"', rep_address = '"+rep_address+"', rep_city = '"+rep_city+"', rep_state = '"+rep_state+"',"
 				+ " rep_zip = "+rep_zip+", territory_number = "+territory_number+" where Sales_rep_number = "+Sales_rep_number+";";
 	}
-	public static String deleteSalesRepBasicInfo(int Sales_rep_number, String rep_name)
+	public static String deleteSalesRepBasicInfo(int Sales_rep_number)
 	{
-		return "delete from salespersonbasicinfo where salespersonbasicinfo.Sales_rep_number = "+Sales_rep_number+" or salespersonbasicinfo.rep_name = '"+rep_name+"';";
+		return "delete from salespersonbasicinfo where salespersonbasicinfo.Sales_rep_number = "+Sales_rep_number+";";
 	}
 
 	public static String insertSalesRepSalesInfo(int Sales_rep_number, float MTD_sales, float YTD_sales, float MTD_commission, float YTD_commission, float Commission_rate)
@@ -103,13 +111,13 @@ public class SQLstatements {
 		return "update salespersonsalesinfo set MTD_sales = "+MTD_sales+", YTD_sales = "+YTD_sales+", MTD_commission = "+MTD_commission+","
 				+ " YTD_commission = "+YTD_commission+", Commission_rate = "+Commission_rate+" where Sales_rep_number = "+Sales_rep_number+";";
 	}
-	
+
 	public static String updateSalesRepSalesInfoByNumber(int Sales_rep_number, float MTD_sales, float YTD_sales,  float MTD_commission, float YTD_commission)
 	{
 		return "update salespersonsalesinfo set MTD_sales = "+MTD_sales+", YTD_sales = "+YTD_sales+", MTD_commission = "+MTD_commission+","
 				+ " YTD_commission = "+YTD_commission+" where Sales_rep_number = "+Sales_rep_number+";";
 	}
-	
+
 	public static String updateSalesRepSalesInfoByNumber(int Sales_rep_number, float MTD_sales, float YTD_sales)
 	{
 		return "update salespersonsalesinfo set MTD_sales = "+MTD_sales+", YTD_sales = "+YTD_sales+" where Sales_rep_number = "+Sales_rep_number+";";
@@ -133,9 +141,9 @@ public class SQLstatements {
 				+ " Customer_sold_to_state = '"+Customer_sold_to_state+"', Customer_sold_to_zip = "+Customer_sold_to_zip+", "
 				+ "Customer_sold_to_rep_number = "+Customer_sold_to_rep_number+" where Customer_Number = "+Customer_Number+";";
 	}
-	public static String deleteCustomerBasicInfo(int Customer_Number, String Customer_sold_to_name)
+	public static String deleteCustomerBasicInfo(int Customer_Number)
 	{
-		return "delete from customerbasicinfo where customerbasicinfo.Customer_Number = "+Customer_Number+" or customerbasicinfo.Customer_sold_to_name = '"+Customer_sold_to_name+"';";
+		return "delete from customerbasicinfo where customerbasicinfo.Customer_Number = "+Customer_Number+";";
 	}
 
 	public static String insertCustomerSalesInfo(int Customer_Number, float Customer_MTD_sales , float Customer_YTD_sales, 
@@ -155,7 +163,7 @@ public class SQLstatements {
 				+ "Customer_balance = '"+Customer_balance+"', Customer_credit_limits = '"+Customer_credit_limits+"',"
 				+ " Customer_total_invoice = '"+Customer_total_invoice+"', Customer_payment = "+Customer_payment+" where Customer_Number = "+Customer_Number+";";
 	}
-	
+
 	public static String updateCustomerSalesInfoByNumber(int Customer_Number, float Customer_MTD_sales , float Customer_YTD_sales, 
 			float Customer_balance, float Customer_total_invoice)
 	{
@@ -211,9 +219,9 @@ public class SQLstatements {
 		return "update venderbasicinfo set vender_name = '"+vender_name+"', vender_address = '"+vender_address+"', vender_city = '"+vender_city+"', vender_state = '"+vender_state+"',"
 				+ " vender_zip = "+vender_zip+" where Vender_Number = "+Vender_Number+";";
 	}
-	public static String deleteVenderBasicInfo(int Vender_Number, String vender_name)
+	public static String deleteVenderBasicInfo(int Vender_Number)
 	{
-		return "delete from venderbasicinfo where venderbasicinfo.Vender_Number = "+Vender_Number+" or venderbasicinfo.vender_name = '"+vender_name+"';";
+		return "delete from venderbasicinfo where venderbasicinfo.Vender_Number = "+Vender_Number+";";
 	}
 
 
@@ -286,12 +294,12 @@ public class SQLstatements {
 		return "update invoice set tax = "+tax+", invoice_date = '"+invoice_date+"', order_number = "
 				+order_number+", ship_charge = "+ship_charge+" where Invoice_Number = "+Invoice_Number+";";
 	}
-	
+
 	public static String updateInvoiceInfoByNumber(int Invoice_Number, float total)
 	{
 		return "update invoice set total = "+total+" where Invoice_Number = "+Invoice_Number+";";
 	}
-	
+
 	public static String deleteInvoiceInfo(int Invoice_Number)
 	{
 		return "delete from invoice where invoice.Invoice_Number = "+Invoice_Number+";";
@@ -314,7 +322,7 @@ public class SQLstatements {
 	{
 		return "delete from payment where payment.Payment_Number = "+Payment_Number+";";
 	}
-	
+
 	public static String insertCustomerLoginBasicInfo(String Customer_sold_to_name , String Customer_sold_to_address_line_1, 
 			String Customer_sold_to_address_line_2, String Customer_sold_to_city, String Customer_sold_to_state, int Customer_sold_to_zip, int Customer_sold_to_rep_number)
 	{
@@ -323,7 +331,7 @@ public class SQLstatements {
 				+ "values ('"+Customer_sold_to_name+"', '"+Customer_sold_to_address_line_1+"', '"+Customer_sold_to_address_line_2+"', '"
 				+Customer_sold_to_city+"', '"+Customer_sold_to_state+"', "+Customer_sold_to_zip+", "+Customer_sold_to_rep_number+");";
 	}
-	
+
 	public static String insertCustomerLoginSalesInfo(float Customer_MTD_sales , float Customer_YTD_sales, 
 			float Customer_balance, float Customer_credit_limits, float Customer_total_invoice, float Customer_payment)
 	{
@@ -332,7 +340,7 @@ public class SQLstatements {
 				+ "values ("+Customer_MTD_sales+", "+Customer_YTD_sales+", "+Customer_balance+", "
 				+Customer_credit_limits+", "+Customer_total_invoice+", "+Customer_payment+");";
 	}
-	
+
 	public static String insertCustomerOrderInfo(String order_date, String Customer_sold_to_name, int Customer_PO_number, String Customer_ship_to_name, 
 			String Customer_ship_to_address_line_1, String Customer_ship_to_address_line_2, String Customer_ship_to_city, String Customer_ship_to_state, int Customer_ship_to_zip)
 	{
@@ -341,13 +349,13 @@ public class SQLstatements {
 				+ "values ('"+order_date+"', '"+Customer_sold_to_name+"', '"+Customer_PO_number+"', '"+Customer_ship_to_name+"', '"+Customer_ship_to_address_line_1
 				+"', '"+Customer_ship_to_address_line_2+"', '"+Customer_ship_to_city+"', '"+Customer_ship_to_state+"', "+Customer_ship_to_zip+");";
 	}
-	
+
 	public static String insertUserLoginInfo(int Customer_Number , String username, String password)
 	{
 		return "insert into userinfo (Customer_Number, username, password) "
 				+ "values ('"+Customer_Number+"', '"+username+"', '"+password+"');";
 	}
-	
+
 	public static String getCustomerNumber(String customerName)
 	{
 		return "SELECT Customer_Number FROM holtdistributors.customerbasicinfo Where Customer_sold_to_name = '"+customerName+"';";
@@ -397,101 +405,141 @@ public class SQLstatements {
 		+"order by payment.Payment_Number;";
 
 	}
-	
+
 	public static String getTerritoryTable = "SELECT * FROM holtdistributors.territories;";
-	
+
 	public static String getItemBasicTable = "SELECT * FROM holtdistributors.itembasicinfo;";
-	
+
 	public static String getSalesRepBasicTable = "SELECT * FROM holtdistributors.salespersonbasicinfo;";
-	
+
 	public static String getOrderTable = "SELECT * FROM holtdistributors.orderinfo;";
-	
+
+	public static String getVenderTable = "SELECT * FROM holtdistributors.venderbasicinfo;";
+
+	public static String getCustomerTable = "SELECT * FROM holtdistributors.customerbasicinfo;";
+
+	public static String getCustomerSalesTable = "SELECT * FROM holtdistributors.customersalesinfo;";
+
+	public static String getTerritoryNumberFromSalesRepTable(int Sales_rep_number)
+	{
+		return "SELECT territory_number FROM holtdistributors.salespersonbasicinfo where Sales_rep_number = "+Sales_rep_number+";";
+	}
+
+	public static String getTerritoryNameFromTerritoryNumber(int Territory_Number)
+	{
+		return "SELECT Territory_name FROM holtdistributors.territories where Territory_Number = "+Territory_Number+";";
+	}
+
+
 	public static String getCustomerSalesTable(int Customer_Number)
 	{
 		return "SELECT * FROM holtdistributors.customersalesinfo where Customer_Number = "+Customer_Number+";";
 	}
-	
+
 	public static String getCustomerBalance(int Customer_Number)
 	{
 		return "SELECT Customer_balance FROM holtdistributors.customersalesinfo where Customer_Number = "+Customer_Number+";";
 	}
-	
+
 	public static String getCustomerBasicTable(int Customer_Number)
 	{
 		return "SELECT * FROM holtdistributors.customerbasicinfo where Customer_Number = "+Customer_Number+";";
 	}
-	
+
 	public static String getOrderNumber(String Customer_sold_to_name)
 	{
 		return "SELECT Order_Number FROM holtdistributors.orderinfo where Customer_sold_to_name = '"+Customer_sold_to_name+"';";
 	}
-	
+
 	public static String getOrderNumbers(String Customer_sold_to_name)
 	{
 		return "SELECT Order_Number FROM holtdistributors.orderinfo where Customer_sold_to_name = '"+Customer_sold_to_name+"';";
 	}
-	
+
 	public static String getCustomerNameByCustomerNumber(int Customer_Number)
 	{
 		return "SELECT Customer_sold_to_name FROM holtdistributors.customerbasicinfo where Customer_Number = "+Customer_Number+";";
 	}
-	
+
 	public static String getCustomerNameByOrderNumber(int Order_Number)
 	{
 		return "SELECT Customer_sold_to_name FROM holtdistributors.orderinfo where Order_Number = "+Order_Number+";";
 	}
-	
+
 	public static String getCustomerSalesRepNumber(int Customer_Number)
 	{
 		return "SELECT Customer_sold_to_rep_number FROM holtdistributors.customerbasicinfo where Customer_Number = "+Customer_Number+";";
 	}
-	
+
 	public static String getSalesRepSalesTable(int Sales_rep_number)
 	{
 		return "SELECT * FROM holtdistributors.salespersonsalesinfo where Sales_rep_number = "+Sales_rep_number+";";
 	}
-	
+
 	public static String getInvoiceNumber(String invoice_date, int order_number, float ship_charge, float tax)
 	{
 		return "SELECT Invoice_Number FROM holtdistributors.invoice where invoice_date = '"+invoice_date+"' and order_number = "+order_number+" "
 				+ "and ship_charge = "+ship_charge+" and tax = "+tax+";";
 	}
-	
+
 	public static String getInvoiceTotal(int Invoice_Number)
 	{
 		return "SELECT total FROM holtdistributors.invoice where Invoice_Number = "+Invoice_Number+";";
 	}
-	
+
 	public static String getCustomerInvoiceTable(String orderSelection)
 	{
 		return "SELECT * FROM holtdistributors.invoice where "+orderSelection+";";
 	}
-	
+
 	public static String getOrderItemInfo(int Order_Number)
 	{
 		return "SELECT * FROM holtdistributors.orderanditeminfo where Order_Number = "+Order_Number+";";
 	}
-	
+
 	public static String getItemDescriptionByNumber(int Item_Number)
 	{
 		return "SELECT Item_Description FROM holtdistributors.itembasicinfo where Item_Number = "+Item_Number+";";
 	}
-	
+
 	public static String getItemSalesInfo(int Item_Number)
 	{
 		return "SELECT * FROM holtdistributors.itemsalesinfo where Item_Number = "+Item_Number+";";
 	}
-	
+
 	public static String checkSalesRepTableSalesNumber(int territory_number)
 	{
 		return "SELECT Sales_rep_number FROM holtdistributors.salespersonbasicinfo where territory_number = "+territory_number+";";
 	}
-	
+
 	public static String checkCustomerBasicTableSalesNumber(int Customer_sold_to_rep_number)
 	{
 		return "SELECT Customer_Number FROM holtdistributors.customerbasicinfo where Customer_sold_to_rep_number = "+Customer_sold_to_rep_number+";";
 	}
-	
+
+
+
+	public static String checkOrderInfoTableItemNumber(int Item_Number)
+	{
+		return "SELECT Order_Number FROM holtdistributors.orderanditeminfo where Item_Number = "+Item_Number+";";
+	}
+
+	public static String checkOrderTableCustomerName(String Customer_sold_to_name)
+	{
+
+		return "SELECT Order_Number FROM holtdistributors.orderinfo where Customer_sold_to_name = '"+Customer_sold_to_name+"';";
+	}
+
+	public static String checkVenderItemTableItemNumber(int Item_Number)
+	{
+		return "SELECT Item_Number FROM holtdistributors.itembasicinfo where Item_Number = "+Item_Number+";";
+	}
+
+	public static String checkVenderTableVenderNumber(int Vender_Number)
+	{
+		return "SELECT Item_Number FROM holtdistributors.venderanditeminfo where Vender_Number = "+Vender_Number+";";
+	}
+
 
 	public static String updateItemSalesInfoByNumber(int Item_Number, float MTD_sales , float YTD_sales, 
 			int units_on_hand, int units_allocated)
@@ -501,22 +549,22 @@ public class SQLstatements {
 				+ "units_on_hand = "+units_on_hand+", units_allocated = "+units_allocated
 				+ " where Item_Number = "+Item_Number+";";
 	}
-	
+
 	public static String updateCustomerBalanceAndPayment(int Customer_Number, float Customer_balance, float Customer_payment)
 	{
 		return "update customersalesinfo set Customer_balance = "+Customer_balance+", Customer_payment = "+Customer_payment+" where Customer_Number = "+Customer_Number+";";
 	}
-	
+
 	public static String updateQuantityShipped(int item_quantity_shipped, int Order_Number, int Item_Number)
 	{
 		return "update orderanditeminfo set item_quantity_shipped = "+item_quantity_shipped+" where Order_Number = "+Order_Number+" and Item_Number = "+Item_Number+";";
 	}
-	
+
 	public static String sendThroughCustomerInvoiceInfo(String invoice_date, int order_number, float ship_charge, float tax, float total)
 	{
 		return "insert into invoice (invoice_date, order_number, ship_charge, tax, total) "
 				+ "values ('"+invoice_date+"', "+order_number+", "+ship_charge+", "+tax+", "+total+");";
 	}
-	
+
 	public static String getCurrentUser = "SELECT USER();";
 }

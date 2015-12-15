@@ -45,7 +45,7 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 	insertSalesRepInfo, updateSalesRepInfo, deleteSalesRepInfo, insertCustomerInfo, updateCustomerInfo, deleteCustomerInfo, insertItemInfo, updateItemInfo, deleteItemInfo,
 	insertVenderInfo, updateVenderInfo, deleteVenderInfo, insertVenderItemInfo, updateVenderItemInfo, deleteVenderItemInfo, insertOrderInfo, updateOrderInfo, deleteOrderInfo,
 	insertOrderItemInfo, updateOrderItemInfo, deleteOrderItemInfo, insertInvoiceInfo, updateInvoiceInfo, deleteInvoiceInfo, insertPaymentInfo, updatePaymentInfo, 
-	deletePaymentInfo, createLoginButton, acceptLoginButton, sendThroughInvoice, backToStartButton;
+	deletePaymentInfo, createLoginButton, acceptLoginButton, sendThroughInvoice, backToStartButton, MonthlyCustomerSalesReportButton;
 	ArrayList<TextField> textFields = new ArrayList<TextField>();
 	ArrayList<ComboBox<String>> comboBoxList = new ArrayList<ComboBox<String>>();
 	Connection myConn;
@@ -81,6 +81,42 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 
 					// 2. Create a statement
 					myStmt = myConn.createStatement();
+
+					//Check if it is a new month
+
+					//Get first order dates month
+					String orderTable[][] = holtDistributorFunctions.getOrderTable(myStmt);
+					String firstOrderDate = orderTable[1][1];
+					firstOrderDate = firstOrderDate.substring(firstOrderDate.indexOf('-') + 1 , firstOrderDate.indexOf('-', firstOrderDate.indexOf('-') + 1 ));
+
+					//Get todays month
+					String currentDateTime = getDateTime();
+					currentDateTime = currentDateTime.substring(currentDateTime.indexOf('/') + 1 , currentDateTime.indexOf('/', currentDateTime.indexOf('/') + 1 ));
+
+					//check if its different then first order dates month
+					if(firstOrderDate != currentDateTime)
+					{
+						//Reset all the Monthly Sales Values
+						holtDistributorFunctions.resetMTDvalues(myStmt);
+					}
+
+					//Check if its a new year
+
+					//Get first order dates year
+					firstOrderDate = orderTable[1][1];
+					firstOrderDate = firstOrderDate.substring(0, firstOrderDate.indexOf('-'));
+
+					//Get todays year
+					currentDateTime = getDateTime();
+					currentDateTime = currentDateTime.substring(0 , currentDateTime.indexOf('/'));
+
+					//check if its different then first order dates year
+					if(firstOrderDate != currentDateTime)
+					{
+						//Reset all the Yearly Sales Values
+						holtDistributorFunctions.resetYTDvalues(myStmt);
+					}
+
 					inputSelection = "goToHomeScene";
 					reset();
 				}
@@ -92,7 +128,8 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 					// 2. Create a statement
 					myStmt = myConn.createStatement();
 					// 3. Execute SQL Query
-					ResultSet myRs = myStmt.executeQuery("SELECT Customer_Number FROM holtdistributors.userinfo where username = '"+ textFields.get(0).getText()+"' and password = '"+ textFields.get(1).getText()+"';");
+					ResultSet myRs = myStmt.executeQuery("SELECT Customer_Number FROM holtdistributors.userinfo where username = '"
+							+ textFields.get(0).getText()+"' and password = '"+ textFields.get(1).getText()+"';");
 					//load customer scene
 					if(myRs.next())
 					{
@@ -110,7 +147,7 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 					}
 					//need to disconnect from database on back
 				}
-				
+
 			}
 			catch (Exception exc){
 				AlertBox alertbox = new AlertBox();
@@ -125,7 +162,7 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 			inputSelection = "backToStart";
 			reset();
 		}
-		
+
 		else if (event.getSource() == createLoginButton){
 			//Table Scene Layout
 			ArrayList<String> dataInputs1 = new ArrayList<String>();
@@ -138,12 +175,12 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 			dataInputs1.add("State");
 			dataInputs1.add("Zip");
 			dataInputs1.add("Sales Rep Number");
-			
+
 			try{
-			// 1. Get a connection to database
+				// 1. Get a connection to database
 				myConn = DriverManager.getConnection("jdbc:mysql://localhost:3306/holtdistributors", "abc", "123");
 
-			// 2. Create a statement
+				// 2. Create a statement
 				myStmt = myConn.createStatement();
 			}
 			catch (Exception exc){
@@ -154,30 +191,30 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 			textFields.clear();
 			inputSelection = "insertLoginInfo";
 			inputDataLayout("Holt Distributor Create Login", dataInputs1, 500, 550);
-			
+
 			window.setScene(inputDataScene);
 		}
 
 		else if (event.getSource() == backToHomeButton){
-				comboBoxList.clear();
-				textFields.clear();
-				if(!(inputSelection.equals("insertLoginInfo")))
-				{
-					window.setScene(HomeScene);
+			comboBoxList.clear();
+			textFields.clear();
+			if(!(inputSelection.equals("insertLoginInfo")))
+			{
+				window.setScene(HomeScene);
+			}
+			else
+			{
+				try{
+					myConn.close();
 				}
-				else
+				catch(Exception e)
 				{
-					try{
-						myConn.close();
-					}
-					catch(Exception e)
-					{
-						AlertBox alertbox = new AlertBox();
-						alertbox.display("Couldnt Close Connection.", e.toString());
-						e.printStackTrace();
-					}
-					reset();
+					AlertBox alertbox = new AlertBox();
+					alertbox.display("Couldnt Close Connection.", e.toString());
+					e.printStackTrace();
 				}
+				reset();
+			}
 		}
 		else if (event.getSource() == territoryListButton){
 			//Table Scene Layout
@@ -224,7 +261,12 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 			createTableLayout(holtDistributorFunctions.getMonthlySalesRepCommissionReport(myStmt));
 			window.setScene(TableScene);
 		}  
-		
+		else if (event.getSource() == MonthlyCustomerSalesReportButton){
+			//Table Scene Layout
+			createTableLayout(holtDistributorFunctions.getCustomerSalesTable(myStmt));
+			window.setScene(TableScene);
+		}  
+
 		else if (event.getSource() == sendThroughInvoice){    	
 
 			ArrayList<String> dataInputs1 = new ArrayList<String>();
@@ -237,8 +279,8 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 			//Enter input Scene
 			window.setScene(inputDataScene);
 		}
-		
-		
+
+
 		else if (event.getSource() == DailyInvoiceReportButton || event.getSource() == DailyCashReceiptJournalButton){    	
 
 			ArrayList<String> dataInputs = new ArrayList<String>();
@@ -277,6 +319,9 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 			dataInputs.add("Territory Number");
 			dataInputs.add("Territory Name");
 
+			ArrayList<String> dataInputs1 = new ArrayList<String>();
+			dataInputs1.add("Territory Number");
+
 			//Input Scene Layout
 			if(event.getSource() == insertTerritory)
 			{
@@ -291,7 +336,7 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 			else
 			{
 				inputSelection = "deleteTerritory";
-				inputDataLayout("Delete Territory", dataInputs, 450, 150);
+				inputDataLayout("Delete Territory", dataInputs1, 450, 150);
 
 			}
 
@@ -318,7 +363,6 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 
 			ArrayList<String> dataInputs2 = new ArrayList<String>();
 			dataInputs2.add("Sales Rep Number");
-			dataInputs2.add("Rep Name");
 
 			//Input Scene Layout
 			if(event.getSource() == insertSalesRepInfo)
@@ -362,7 +406,6 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 
 			ArrayList<String> dataInputs2 = new ArrayList<String>();
 			dataInputs2.add("Customer Number");
-			dataInputs2.add("Customer Sold to Name");
 
 			//Input Scene Layout
 			if(event.getSource() == insertCustomerInfo)
@@ -436,7 +479,6 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 
 			ArrayList<String> dataInputs2 = new ArrayList<String>();
 			dataInputs2.add("Vender Number");
-			dataInputs2.add("Vender Name");
 
 			//Input Scene Layout
 			if(event.getSource() == insertVenderInfo)
@@ -722,6 +764,7 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 					//Table Scene Layout				
 					String territoryNum = comboBoxList.get(0).getValue();
 					territoryNum = territoryNum.substring(0 , territoryNum.indexOf(' '));
+
 					holtDistributorFunctions.updateTerritoryByNumber(myStmt, Integer.parseInt(territoryNum) , textFields.get(0).getText());
 					reset();
 				}
@@ -737,12 +780,12 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 					//Table Scene Layout
 					String territoryNum = comboBoxList.get(0).getValue();
 					territoryNum = territoryNum.substring(0 , territoryNum.indexOf(' '));
-					
+
 					//Check if territory is linked to a sales representative
 					int salesRepCheck = holtDistributorFunctions.checkSalesRepTableSalesNumber(myStmt, Integer.parseInt(territoryNum));
 					if(salesRepCheck == -1)
 					{
-						holtDistributorFunctions.deleteTerritory(myStmt,  Integer.parseInt(territoryNum), textFields.get(0).getText());
+						holtDistributorFunctions.deleteTerritory(myStmt,  Integer.parseInt(territoryNum));
 						reset();
 					}
 					else
@@ -782,15 +825,15 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 				try{
 					String salesRepNum = comboBoxList.get(0).getValue();
 					salesRepNum = salesRepNum.substring(0 , salesRepNum.indexOf(' '));
-					
+
 					String territoryNum = comboBoxList.get(1).getValue();
 					territoryNum = territoryNum.substring(0 , territoryNum.indexOf(' '));
 					//Table Scene Layout
-					holtDistributorFunctions.updateSalesRepBasicInfoByNumber(myStmt, Integer.parseInt(salesRepNum), textFields.get(1).getText(), textFields.get(2).getText()
-					, textFields.get(3).getText(), textFields.get(4).getText(), Integer.parseInt(textFields.get(5).getText()), Integer.parseInt(territoryNum));
-					holtDistributorFunctions.updateSalesRepSalesInfoByNumber(myStmt, Integer.parseInt(textFields.get(0).getText()), Float.parseFloat(textFields.get(6).getText()), 
-							Float.parseFloat(textFields.get(7).getText()), Float.parseFloat(textFields.get(8).getText()), Float.parseFloat(textFields.get(9).getText()),
-							Float.parseFloat(textFields.get(10).getText()));
+					holtDistributorFunctions.updateSalesRepBasicInfoByNumber(myStmt, Integer.parseInt(salesRepNum), textFields.get(0).getText(), textFields.get(1).getText()
+							, textFields.get(2).getText(), textFields.get(3).getText(), Integer.parseInt(textFields.get(4).getText()), Integer.parseInt(territoryNum));
+					holtDistributorFunctions.updateSalesRepSalesInfoByNumber(myStmt, Integer.parseInt(salesRepNum), Float.parseFloat(textFields.get(5).getText()), 
+							Float.parseFloat(textFields.get(6).getText()), Float.parseFloat(textFields.get(7).getText()), Float.parseFloat(textFields.get(8).getText()),
+							Float.parseFloat(textFields.get(9).getText()));
 					reset();
 				}
 				catch(Exception exc){
@@ -802,15 +845,16 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 			else if(inputSelection.equals("deleteSalesRep"))
 			{
 				try{
+
 					String salesRepNum = comboBoxList.get(0).getValue();
 					salesRepNum = salesRepNum.substring(0 , salesRepNum.indexOf(' '));
-					
+
 					//Check if sales representative is linked to customer
 					int customerNumberCheck = holtDistributorFunctions.checkCustomerBasicTableSalesNumber(myStmt, Integer.parseInt(salesRepNum));
 					if(customerNumberCheck == -1)
 					{
 						//Table Scene Layout
-						holtDistributorFunctions.deleteSalesRepBasicInfo(myStmt, Integer.parseInt(salesRepNum), textFields.get(0).getText());
+						holtDistributorFunctions.deleteSalesRepBasicInfo(myStmt, Integer.parseInt(salesRepNum));
 						reset();
 					}
 					else
@@ -831,12 +875,13 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 				try{
 					String salesRepNum = comboBoxList.get(0).getValue();
 					salesRepNum = salesRepNum.substring(0 , salesRepNum.indexOf(' '));
+
 					//Table Scene Layout
 					holtDistributorFunctions.insertCustomerBasicInfo(myStmt, Integer.parseInt(textFields.get(0).getText()), textFields.get(1).getText(), textFields.get(2).getText()
 							, textFields.get(3).getText(), textFields.get(4).getText(), textFields.get(5).getText(), Integer.parseInt(textFields.get(6).getText()), Integer.parseInt(salesRepNum));
-					holtDistributorFunctions.insertCustomerSalesInfo(myStmt, Integer.parseInt(textFields.get(0).getText()), Float.parseFloat(textFields.get(8).getText()), 
-							Float.parseFloat(textFields.get(9).getText()), Float.parseFloat(textFields.get(10).getText()), Float.parseFloat(textFields.get(11).getText()),
-							Float.parseFloat(textFields.get(12).getText()), Float.parseFloat(textFields.get(13).getText()));
+					holtDistributorFunctions.insertCustomerSalesInfo(myStmt, Integer.parseInt(textFields.get(0).getText()), Float.parseFloat(textFields.get(7).getText()), 
+							Float.parseFloat(textFields.get(8).getText()), Float.parseFloat(textFields.get(9).getText()), Float.parseFloat(textFields.get(10).getText()),
+							Float.parseFloat(textFields.get(11).getText()), Float.parseFloat(textFields.get(12).getText()));
 					reset();
 				}
 				catch(Exception exc){
@@ -848,14 +893,18 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 			else if(inputSelection.equals("updateCustomer"))
 			{
 				try{
-					String salesRepNum = comboBoxList.get(0).getValue();
+					String customerNum = comboBoxList.get(0).getValue();
+					customerNum = customerNum.substring(0 , customerNum.indexOf(' '));
+
+					String salesRepNum = comboBoxList.get(1).getValue();
 					salesRepNum = salesRepNum.substring(0 , salesRepNum.indexOf(' '));
+
 					//Table Scene Layout
-					holtDistributorFunctions.updateCustomerBasicInfoByNumber(myStmt, Integer.parseInt(textFields.get(0).getText()), textFields.get(1).getText(), textFields.get(2).getText()
-							, textFields.get(3).getText(), textFields.get(4).getText(), textFields.get(5).getText(), Integer.parseInt(textFields.get(6).getText()), Integer.parseInt(salesRepNum));
-					holtDistributorFunctions.updateCustomerSalesInfoByNumber(myStmt, Integer.parseInt(textFields.get(0).getText()), Float.parseFloat(textFields.get(8).getText()), 
-							Float.parseFloat(textFields.get(9).getText()), Float.parseFloat(textFields.get(10).getText()), Float.parseFloat(textFields.get(11).getText()),
-							Float.parseFloat(textFields.get(12).getText()), Float.parseFloat(textFields.get(13).getText()));
+					holtDistributorFunctions.updateCustomerBasicInfoByNumber(myStmt, Integer.parseInt(customerNum), textFields.get(0).getText(), textFields.get(1).getText()
+							, textFields.get(2).getText(), textFields.get(3).getText(), textFields.get(4).getText(), Integer.parseInt(textFields.get(5).getText()), Integer.parseInt(salesRepNum));
+					holtDistributorFunctions.updateCustomerSalesInfoByNumber(myStmt, Integer.parseInt(customerNum), Float.parseFloat(textFields.get(6).getText()), 
+							Float.parseFloat(textFields.get(7).getText()), Float.parseFloat(textFields.get(8).getText()), Float.parseFloat(textFields.get(9).getText()),
+							Float.parseFloat(textFields.get(10).getText()), Float.parseFloat(textFields.get(11).getText()));
 					reset();
 				}
 				catch(Exception exc){
@@ -867,9 +916,23 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 			else if(inputSelection.equals("deleteCustomer"))
 			{
 				try{
-					//Table Scene Layout
-					holtDistributorFunctions.deleteCustomerBasicInfo(myStmt, Integer.parseInt(textFields.get(0).getText()), textFields.get(1).getText());
-					reset();
+					String customerNumString = comboBoxList.get(0).getValue();
+					customerNumString = customerNumString.substring(0 , customerNumString.indexOf(' '));
+
+					int customerNum = Integer.parseInt(customerNumString);
+					String name = holtDistributorFunctions.getCustomerNameByCustomerNumber(myStmt, customerNum);
+					int orderNumCheck = holtDistributorFunctions.checkOrderTableCustomerName(myStmt, name);
+					if(orderNumCheck == -1)
+					{
+						//Table Scene Layout
+						holtDistributorFunctions.deleteCustomerBasicInfo(myStmt, customerNum);
+						reset();
+					}
+					else{
+						AlertBox alertbox = new AlertBox();
+						alertbox.display("Invalid Entry", "You cannot delete that customer. \nLinked to order number : "+ orderNumCheck);
+					}
+
 				}
 				catch(Exception exc){
 					AlertBox alertbox = new AlertBox();
@@ -897,11 +960,14 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 			else if(inputSelection.equals("updateItem"))
 			{
 				try{
+					String itemNumString = comboBoxList.get(0).getValue();
+					itemNumString = itemNumString.substring(0 , itemNumString.indexOf(' '));
+
 					//Table Scene Layout
-					holtDistributorFunctions.updateItemBasicInfoByNumber(myStmt, Integer.parseInt(textFields.get(0).getText()), textFields.get(1).getText(),  Float.parseFloat(textFields.get(2).getText()));
-					holtDistributorFunctions.updateItemSalesInfoByNumber(myStmt, Integer.parseInt(textFields.get(0).getText()), Float.parseFloat(textFields.get(3).getText()), 
-							Float.parseFloat(textFields.get(4).getText()), Integer.parseInt(textFields.get(5).getText()), Integer.parseInt(textFields.get(6).getText()),
-							Integer.parseInt(textFields.get(7).getText()));
+					holtDistributorFunctions.updateItemBasicInfoByNumber(myStmt, Integer.parseInt(itemNumString), textFields.get(0).getText(),  Float.parseFloat(textFields.get(1).getText()));
+					holtDistributorFunctions.updateItemSalesInfoByNumber(myStmt, Integer.parseInt(itemNumString), Float.parseFloat(textFields.get(2).getText()), 
+							Float.parseFloat(textFields.get(3).getText()), Integer.parseInt(textFields.get(4).getText()), Integer.parseInt(textFields.get(5).getText()),
+							Integer.parseInt(textFields.get(6).getText()));
 					reset();
 				}
 				catch(Exception exc){
@@ -913,9 +979,20 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 			else if(inputSelection.equals("deleteItem"))
 			{
 				try{
-					//Table Scene Layout
-					holtDistributorFunctions.deleteItemBasicInfo(myStmt, Integer.parseInt(textFields.get(0).getText()));
-					reset();
+					String itemNumString = comboBoxList.get(0).getValue();
+					itemNumString = itemNumString.substring(0 , itemNumString.indexOf(' '));
+
+					int orderNumberCheck = holtDistributorFunctions.checkOrderInfoTableItemNumber(myStmt, Integer.parseInt(itemNumString));
+					if(orderNumberCheck == -1)
+					{
+						//Table Scene Layout
+						holtDistributorFunctions.deleteItemBasicInfo(myStmt, Integer.parseInt(itemNumString));
+						reset();
+					}
+					else{
+						AlertBox alertbox = new AlertBox();
+						alertbox.display("Invalid Entry", "You cannot delete that item is linked to order number : "+ orderNumberCheck);
+					}
 				}
 				catch(Exception exc){
 					AlertBox alertbox = new AlertBox();
@@ -942,9 +1019,12 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 			else if(inputSelection.equals("updateVender"))
 			{
 				try{
+					String venderNumString = comboBoxList.get(0).getValue();
+					venderNumString = venderNumString.substring(0 , venderNumString.indexOf(' '));
+
 					//Table Scene Layout
-					holtDistributorFunctions.updateVenderBasicInfoByNumber(myStmt, Integer.parseInt(textFields.get(0).getText()), textFields.get(1).getText(),  textFields.get(2).getText()
-							, textFields.get(3).getText(), textFields.get(4).getText(), Integer.parseInt(textFields.get(5).getText()));
+					holtDistributorFunctions.updateVenderBasicInfoByNumber(myStmt, Integer.parseInt(venderNumString), textFields.get(0).getText(),  textFields.get(1).getText()
+							, textFields.get(2).getText(), textFields.get(3).getText(), Integer.parseInt(textFields.get(4).getText()));
 					reset();
 				}
 				catch(Exception exc){
@@ -956,9 +1036,21 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 			else if(inputSelection.equals("deleteVender"))
 			{
 				try{
-					//Table Scene Layout
-					holtDistributorFunctions.deleteVenderBasicInfo(myStmt, Integer.parseInt(textFields.get(0).getText()), textFields.get(1).getText());
-					reset();
+					String venderNumString = comboBoxList.get(0).getValue();
+					venderNumString = venderNumString.substring(0 , venderNumString.indexOf(' '));
+
+					int itemNumberCheck = holtDistributorFunctions.checkVenderTableVenderNumber(myStmt, Integer.parseInt(venderNumString));
+					if(itemNumberCheck == -1)
+					{
+						//Table Scene Layout
+						holtDistributorFunctions.deleteVenderBasicInfo(myStmt, Integer.parseInt(venderNumString));
+						reset();
+					}
+					else
+					{
+						AlertBox alertbox = new AlertBox();
+						alertbox.display("Invalid Entry", "You cannot delete that vender, he/she is linked to item number : "+ itemNumberCheck + " in order and info table");
+					}
 				}
 				catch(Exception exc){
 					AlertBox alertbox = new AlertBox();
@@ -970,9 +1062,12 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 			else if(inputSelection.equals("insertVenderItem"))
 			{
 				try{
+					String itemNumString = comboBoxList.get(0).getValue();
+					itemNumString = itemNumString.substring(0 , itemNumString.indexOf(' '));
+
 					//Table Scene Layout
-					holtDistributorFunctions.insertVenderAndItemInfo(myStmt, Integer.parseInt(textFields.get(0).getText()), Integer.parseInt(textFields.get(1).getText()),   Float.parseFloat(textFields.get(2).getText())
-							,  Float.parseFloat(textFields.get(3).getText()), textFields.get(4).getText());
+					holtDistributorFunctions.insertVenderAndItemInfo(myStmt, Integer.parseInt(textFields.get(0).getText()), Integer.parseInt(itemNumString),   Float.parseFloat(textFields.get(1).getText())
+							,  Float.parseFloat(textFields.get(2).getText()), textFields.get(3).getText());
 					reset();
 				}
 				catch(Exception exc){
@@ -984,9 +1079,15 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 			else if(inputSelection.equals("updateVenderItem"))
 			{
 				try{
+					String venderNumString = comboBoxList.get(0).getValue();
+					venderNumString = venderNumString.substring(0 , venderNumString.indexOf(' '));
+
+					String itemNumString = comboBoxList.get(1).getValue();
+					itemNumString = itemNumString.substring(0 , itemNumString.indexOf(' '));
+
 					//Table Scene Layout
-					holtDistributorFunctions.updateVenderAndItemInfoByNumber(myStmt, Integer.parseInt(textFields.get(0).getText()), Integer.parseInt(textFields.get(1).getText()),   Float.parseFloat(textFields.get(2).getText())
-							,  Float.parseFloat(textFields.get(3).getText()), textFields.get(4).getText());
+					holtDistributorFunctions.updateVenderAndItemInfoByNumber(myStmt, Integer.parseInt(venderNumString), Integer.parseInt(itemNumString),   Float.parseFloat(textFields.get(0).getText())
+							,  Float.parseFloat(textFields.get(1).getText()), textFields.get(2).getText());
 					reset();
 				}
 				catch(Exception exc){
@@ -997,10 +1098,21 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 			}
 			else if(inputSelection.equals("deleteVenderItem"))
 			{
+				String venderNumString = comboBoxList.get(0).getValue();
+				venderNumString = venderNumString.substring(0 , venderNumString.indexOf(' '));
+
 				try{
-					//Table Scene Layout
-					holtDistributorFunctions.deleteVenderAndItemInfo(myStmt, Integer.parseInt(textFields.get(0).getText()), Integer.parseInt(textFields.get(1).getText()));
-					reset();
+					int itemNumberCheck = holtDistributorFunctions.checkVenderItemTableItemNumber(myStmt, Integer.parseInt(textFields.get(0).getText()));
+					if(itemNumberCheck == -1)
+					{
+						//Table Scene Layout
+						holtDistributorFunctions.deleteVenderAndItemInfo(myStmt, Integer.parseInt(venderNumString), Integer.parseInt(textFields.get(0).getText()));
+						reset();
+					}
+					else{
+						AlertBox alertbox = new AlertBox();
+						alertbox.display("Invalid Entry", "You cannot delete that vender item number, is linked to item number "+ itemNumberCheck + " in item basic table.");
+					}
 				}
 				catch(Exception exc){
 					AlertBox alertbox = new AlertBox();
@@ -1030,9 +1142,9 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 					String orderNum = comboBoxList.get(0).getValue();
 					orderNum = orderNum.substring(0 , orderNum.indexOf(' '));
 					//Table Scene Layout
-					holtDistributorFunctions.updateOrderInfoByNumber(myStmt, Integer.parseInt(orderNum), textFields.get(1).getText(),   textFields.get(2).getText()
-							, Integer.parseInt(textFields.get(3).getText()), textFields.get(4).getText(), textFields.get(5).getText(), textFields.get(6).getText(), textFields.get(7).getText(), textFields.get(8).getText(),
-							Integer.parseInt(textFields.get(9).getText()));
+					holtDistributorFunctions.updateOrderInfoByNumber(myStmt, Integer.parseInt(orderNum), textFields.get(0).getText(),   textFields.get(1).getText()
+							, Integer.parseInt(textFields.get(2).getText()), textFields.get(3).getText(), textFields.get(4).getText(), textFields.get(5).getText(), textFields.get(6).getText(), textFields.get(7).getText(),
+							Integer.parseInt(textFields.get(8).getText()));
 					reset();
 				}
 				catch(Exception exc){
@@ -1063,8 +1175,8 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 					String orderNum = comboBoxList.get(0).getValue();
 					orderNum = orderNum.substring(0 , orderNum.indexOf(' '));
 					//Table Scene Layout
-					holtDistributorFunctions.insertOrderAndItemInfo(myStmt, Integer.parseInt(orderNum), Integer.parseInt(textFields.get(1).getText()),   Integer.parseInt(textFields.get(2).getText())
-							, Integer.parseInt(textFields.get(3).getText()), Float.parseFloat(textFields.get(4).getText()));
+					holtDistributorFunctions.insertOrderAndItemInfo(myStmt, Integer.parseInt(orderNum), Integer.parseInt(textFields.get(0).getText()),   Integer.parseInt(textFields.get(1).getText())
+							, Integer.parseInt(textFields.get(2).getText()), Float.parseFloat(textFields.get(3).getText()));
 					reset();
 				}
 				catch(Exception exc){
@@ -1197,17 +1309,35 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 				try{
 					//Table Scene Layout
 					//holtDistributorFunctions.deletePaymentInfo(myStmt, Integer.parseInt(textFields.get(0).getText()));
-					
-					//insert customerbasicinfo
-					holtDistributorFunctions.insertCustomerLoginBasicInfo(myStmt, textFields.get(2).getText(), textFields.get(3).getText(),textFields.get(4).getText(),
-							textFields.get(5).getText(), textFields.get(6).getText(), Integer.parseInt(textFields.get(7).getText()), Character.getNumericValue(comboBoxList.get(0).getValue().charAt(0)));
-					//get customer number
-					int customerNumber = holtDistributorFunctions.getCustomerNumber(myStmt, textFields.get(2).getText());
-					//insert customersalesinfo as 0's
-					holtDistributorFunctions.insertCustomerSalesInfo(myStmt, customerNumber, 0, 0, 0, 0, 0, 0);
-					//insert userNameInfo
-					holtDistributorFunctions.insertUserLoginInfo(myStmt, customerNumber, textFields.get(0).getText(), textFields.get(1).getText());
-					reset();
+
+					//check if territory is == to city entry
+
+					String teritoryNameString = comboBoxList.get(0).getValue();
+					teritoryNameString = teritoryNameString.substring(teritoryNameString.lastIndexOf('-') + 2, teritoryNameString.length());
+
+					if(teritoryNameString.equalsIgnoreCase(textFields.get(5).getText()))
+					{
+
+						String salesRepNumString = comboBoxList.get(0).getValue();
+						salesRepNumString = salesRepNumString.substring(0 , salesRepNumString.indexOf(' '));
+
+
+						//insert customerbasicinfo
+						holtDistributorFunctions.insertCustomerLoginBasicInfo(myStmt, textFields.get(2).getText(), textFields.get(3).getText(),textFields.get(4).getText(),
+								textFields.get(5).getText(), textFields.get(6).getText(), Integer.parseInt(textFields.get(7).getText()),  Integer.parseInt(salesRepNumString));
+						//get customer number
+						int customerNumber = holtDistributorFunctions.getCustomerNumber(myStmt, textFields.get(2).getText());
+						//insert customersalesinfo as 0's
+						holtDistributorFunctions.insertCustomerSalesInfo(myStmt, customerNumber, 0, 0, 0, 0, 0, 0);
+						//insert userNameInfo
+						holtDistributorFunctions.insertUserLoginInfo(myStmt, customerNumber, textFields.get(0).getText(), textFields.get(1).getText());
+						reset();
+					}
+					else{
+						AlertBox alertbox = new AlertBox();
+						alertbox.display("Invalid Entry", "Your city name must match your"
+								+ "\n Sales Reps territory.");
+					}
 				}
 				catch(Exception exc){
 					AlertBox alertbox = new AlertBox();
@@ -1223,27 +1353,27 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 					orderNumber =  Integer.parseInt(orderNum);
 					shipCharge =  Float.parseFloat(textFields.get(0).getText());
 					tax =  Float.parseFloat(textFields.get(1).getText());
-					
-					
-					
+
+
+
 					//get item numbers and quantity ordered from "order and item info" table				
 					String dataArray[][] = holtDistributorFunctions.getOrderItemInfo(myStmt, orderNumber);
-					
+
 					//Display Ordered Items
 					comboBoxList.clear();
 					invoiceItemsLayout(dataArray);
 					window.setScene(invoiceItemScene);
 					inputSelection = "confirmSendInvoice";
-				
+
 				}
 				catch(Exception exc){
 					AlertBox alertbox = new AlertBox();
 					alertbox.display("Invalid Entry", "You have entered an invalid"
-								+ "\n entry type. Please try again.");
+							+ "\n entry type. Please try again.");
 					exc.printStackTrace();
 				}
 			}
-			
+
 			else if(inputSelection.equals("confirmSendInvoice"))
 			{
 				try{
@@ -1384,17 +1514,17 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 						AlertBox alertbox = new AlertBox();
 						alertbox.display("Invalid Entry", "Units on hand is to low for one item");
 					}
-				
+
 				}
 				catch(Exception exc){
 					AlertBox alertbox = new AlertBox();
 					alertbox.display("Invalid Entry", "You have entered an invalid"
-								+ "\n entry type. Please try again.");
+							+ "\n entry type. Please try again.");
 					exc.printStackTrace();
 				}
 			}
 		}
-		
+
 	}
 
 
@@ -1428,7 +1558,7 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 
 		startButton = new Button("Start");
 		GridPane.setConstraints(startButton, 0, 3);
-		
+
 		createLoginButton = new Button("Create Login Account");
 		GridPane.setConstraints(createLoginButton, 0, 4);
 
@@ -1440,7 +1570,7 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 		startButton.setOnAction(this);
 		createLoginButton.setOnAction(this);
 	}
-	
+
 
 	public void homeSceneLayout(){
 		StackPane titleLayerLayout = new StackPane();
@@ -1492,7 +1622,7 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 
 		MonthlyCashReceiptJournalButton = new Button("Monthly Cash Receipt Journal");
 		GridPane.setConstraints(MonthlyCashReceiptJournalButton, 2, 4);
-		
+
 		sendThroughInvoice = new Button("Release Order");
 		GridPane.setConstraints(sendThroughInvoice, 3, 1);
 
@@ -1501,6 +1631,9 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 
 		MonthlySalesRepCommissionReportButton = new Button("Monthly Sales Rep Commission Report");
 		GridPane.setConstraints(MonthlySalesRepCommissionReportButton, 3, 3);
+
+		MonthlyCustomerSalesReportButton = new Button("Monthly Customer Sales Report");
+		GridPane.setConstraints(MonthlyCustomerSalesReportButton, 3, 4);
 
 		Label dataTransactionsLabel = new Label("Data Transactions");
 		dataTransactionsLabel.setFont(new Font("Arial", 20));
@@ -1635,7 +1768,7 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 
 		deleteOrderItemInfo = new Button("Delete Order/Item Info");
 		GridPane.setConstraints(deleteOrderItemInfo, 1, 23);
-		
+
 		backToStartButton = new Button("Back");
 		GridPane.setConstraints(backToStartButton, 2, 20);
 
@@ -1643,15 +1776,16 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 				DailyInvoiceReportButton, MonthlyInvoiceReportButton, StockStatusReportButton, ReorderPointListButton, VenderListButton, DailyCashReceiptJournalButton, 
 				MonthlyCashReceiptJournalButton, sendThroughInvoice, CustomerMailingLabelInfoButton, MonthlySalesRepCommissionReportButton, dataTransactionsLabel,territoryLabel, insertTerritory, updateTerritory, 
 				deleteTerritory,salesRepsLabel, insertSalesRepInfo, updateSalesRepInfo, deleteSalesRepInfo,customersLabel, insertCustomerInfo, updateCustomerInfo, deleteCustomerInfo,itemsLabel, insertItemInfo, 
-				updateItemInfo, deleteItemInfo,vendersLabel, insertVenderInfo, updateVenderInfo, deleteVenderInfo,vendersAndItemsLabel, insertVenderItemInfo, updateVenderItemInfo,  deleteVenderItemInfo, backToStartButton);
-		
+				updateItemInfo, deleteItemInfo,vendersLabel, insertVenderInfo, updateVenderInfo, deleteVenderInfo,vendersAndItemsLabel, insertVenderItemInfo, updateVenderItemInfo,  
+				deleteVenderItemInfo, backToStartButton, MonthlyCustomerSalesReportButton);
+
 		//Buttons Taken out insertOrderInfo, updateOrderInfo, deleteOrderInfo, insertOrderItemInfo, updateOrderItemInfo, deleteOrderItemInfo, insertInvoiceInfo, updateInvoiceInfo, deleteInvoiceInfo,
 		//insertPaymentInfo, updatePaymentInfo, deletePaymentInfo,
 		//paymentsLabel, 
 		//ordersAndItemsLabel, 
 		//invoicesLabel, 
 		//ordersLabel
-		
+
 
 		BorderPane layout4 = new BorderPane();
 		layout4.setTop(titleLayerLayout);
@@ -1673,6 +1807,7 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 		sendThroughInvoice.setOnAction(this);
 		CustomerMailingLabelInfoButton.setOnAction(this);
 		MonthlySalesRepCommissionReportButton.setOnAction(this);
+		MonthlyCustomerSalesReportButton.setOnAction(this);
 		insertTerritory.setOnAction(this);
 		updateTerritory.setOnAction(this);
 		deleteTerritory.setOnAction(this);
@@ -1767,12 +1902,12 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 			{
 				ComboBox<String> inputComboBox = new ComboBox<String>();
 				String dataArray[][] = holtDistributorFunctions.getTerritoryTable(myStmt);
-				
+
 				for(int j = 1; !(dataArray[j][0] == null); j++)
 				{
 					inputComboBox.getItems().addAll(
 							dataArray[j][0] + " - " + dataArray[j][1]
-									);
+							);
 				}
 
 				GridPane.setConstraints(inputComboBox, 0, i);
@@ -1786,12 +1921,58 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 			{
 				ComboBox<String> inputComboBox = new ComboBox<String>();
 				String dataArray[][] = holtDistributorFunctions.getSalesRepBasicTable(myStmt);
-				
+
+				for(int j = 1; !(dataArray[j][0] == null); j++)
+				{
+					String repNum = dataArray[j][0];//Sales Rep Number
+
+					//Get territory number from sales rep number
+					int territoryNum = holtDistributorFunctions.getTerritoryNumberFromSalesRepTable(myStmt, Integer.parseInt(repNum));
+
+					//get territory name from territory number
+					String territoryName = holtDistributorFunctions.getTerritoryNameFromTerritoryNumber(myStmt, territoryNum);
+
+					inputComboBox.getItems().addAll(
+							dataArray[j][0] + " - " + dataArray[j][1] + " - " + territoryName
+							);
+				}
+
+				GridPane.setConstraints(inputComboBox, 0, i);
+				Label inputLabel = new Label(input);
+				GridPane.setConstraints(inputLabel, 1, i);
+				grid.getChildren().addAll(inputComboBox, inputLabel);
+				comboBoxList.add(inputComboBox);
+				i++;
+			}
+			else if(input.equalsIgnoreCase("Item Number") && !(inputSelection.equalsIgnoreCase("insertItem")) && !(inputSelection.equalsIgnoreCase("deleteVenderItem")))
+			{
+				ComboBox<String> inputComboBox = new ComboBox<String>();
+				String dataArray[][] = holtDistributorFunctions.getItemBasicTable(myStmt);
+
 				for(int j = 1; !(dataArray[j][0] == null); j++)
 				{
 					inputComboBox.getItems().addAll(
-							dataArray[j][0] + " - " + dataArray[j][1]
-									);
+							dataArray[j][0] + " - " + dataArray[j][1] + " - $" + dataArray[j][2]
+							);
+				}
+
+				GridPane.setConstraints(inputComboBox, 0, i);
+				Label inputLabel = new Label(input);
+				GridPane.setConstraints(inputLabel, 1, i);
+				grid.getChildren().addAll(inputComboBox, inputLabel);
+				comboBoxList.add(inputComboBox);
+				i++;
+			}
+			else if(input.equalsIgnoreCase("Customer Number") && !(inputSelection.equalsIgnoreCase("insertCustomer")))
+			{
+				ComboBox<String> inputComboBox = new ComboBox<String>();
+				String dataArray[][] = holtDistributorFunctions.getCustomerTable(myStmt);
+
+				for(int j = 1; !(dataArray[j][0] == null); j++)
+				{
+					inputComboBox.getItems().addAll(
+							dataArray[j][0] + " - " + dataArray[j][1] 
+							);
 				}
 
 				GridPane.setConstraints(inputComboBox, 0, i);
@@ -1805,12 +1986,31 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 			{
 				ComboBox<String> inputComboBox = new ComboBox<String>();
 				String dataArray[][] = holtDistributorFunctions.getOrderTable(myStmt);
-				
+
 				for(int j = 1; !(dataArray[j][0] == null); j++)
 				{
 					inputComboBox.getItems().addAll(
 							dataArray[j][0] + " - " + dataArray[j][2]
-									);
+							);
+				}
+
+				GridPane.setConstraints(inputComboBox, 0, i);
+				Label inputLabel = new Label(input);
+				GridPane.setConstraints(inputLabel, 1, i);
+				grid.getChildren().addAll(inputComboBox, inputLabel);
+				comboBoxList.add(inputComboBox);
+				i++;
+			}
+			else if(input.equalsIgnoreCase("Vender Number") && !(inputSelection.equalsIgnoreCase("insertVender")) &&!(inputSelection.equalsIgnoreCase("insertVenderItem")))
+			{
+				ComboBox<String> inputComboBox = new ComboBox<String>();
+				String dataArray[][] = holtDistributorFunctions.getVenderTable(myStmt);
+
+				for(int j = 1; !(dataArray[j][0] == null); j++)
+				{
+					inputComboBox.getItems().addAll(
+							dataArray[j][0] + " - " + dataArray[j][1]
+							);
 				}
 
 				GridPane.setConstraints(inputComboBox, 0, i);
@@ -1833,85 +2033,85 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 		}
 		inputDataScene = new Scene(grid, XgridSize, YgridSize);
 	}
-	
+
 	public void invoiceItemsLayout(String dataArray[][])
 	{
-				//GridPane with 10px padding around edge
-				GridPane grid = new GridPane();
-				grid.setPadding(new Insets(10, 10, 10, 10));
-				grid.setVgap(8);
-				grid.setHgap(10);
+		//GridPane with 10px padding around edge
+		GridPane grid = new GridPane();
+		grid.setPadding(new Insets(10, 10, 10, 10));
+		grid.setVgap(8);
+		grid.setHgap(10);
 
-				//Labels
-				Label titleLabel = new Label("Ordered Items");
-				titleLabel.setFont(new Font("Arial", 40));
-				GridPane.setConstraints(titleLabel, 0, 0);
-				grid.getChildren().addAll(titleLabel);
-				int i;
-				for(i = 1; !(dataArray[i][0]==(null)); i++)
-				{
-					Label itemLabel = new Label("Item Number : " + dataArray[i][1]);
-					itemLabel.setFont(new Font("Arial", 20));
-					GridPane.setConstraints(itemLabel, 0, i);
-					
-					ComboBox<String> inputComboBox = new ComboBox<String>();
-					
-					Label shipQuantityLabel = new Label("Ship Quantity :");
-					GridPane.setConstraints(shipQuantityLabel, 1, i);
+		//Labels
+		Label titleLabel = new Label("Ordered Items");
+		titleLabel.setFont(new Font("Arial", 40));
+		GridPane.setConstraints(titleLabel, 0, 0);
+		grid.getChildren().addAll(titleLabel);
+		int i;
+		for(i = 1; !(dataArray[i][0]==(null)); i++)
+		{
+			Label itemLabel = new Label("Item Number : " + dataArray[i][1]);
+			itemLabel.setFont(new Font("Arial", 20));
+			GridPane.setConstraints(itemLabel, 0, i);
 
-					for(int j = 0; Integer.parseInt(dataArray[i][2]) - Integer.parseInt(dataArray[i][3]) >=  j; j++)
-					{
-						String w = j + "";
-						inputComboBox.getItems().addAll(
-								w
-								);
-					}					
-					GridPane.setConstraints(inputComboBox, 2, i);
-					
-					
-					grid.getChildren().addAll(inputComboBox, itemLabel, shipQuantityLabel);
-					comboBoxList.add(inputComboBox);
-				}
-				inputAcceptButton = new Button("Accept");
-				inputAcceptButton.setOnAction(this);
-				GridPane.setConstraints(inputAcceptButton, 0, i +1);
-				grid.getChildren().addAll(inputAcceptButton);
+			ComboBox<String> inputComboBox = new ComboBox<String>();
 
-				invoiceItemScene = new Scene(grid, 500, 500);
+			Label shipQuantityLabel = new Label("Ship Quantity :");
+			GridPane.setConstraints(shipQuantityLabel, 1, i);
+
+			for(int j = 0; Integer.parseInt(dataArray[i][2]) - Integer.parseInt(dataArray[i][3]) >=  j; j++)
+			{
+				String w = j + "";
+				inputComboBox.getItems().addAll(
+						w
+						);
+			}					
+			GridPane.setConstraints(inputComboBox, 2, i);
+
+
+			grid.getChildren().addAll(inputComboBox, itemLabel, shipQuantityLabel);
+			comboBoxList.add(inputComboBox);
+		}
+		inputAcceptButton = new Button("Accept");
+		inputAcceptButton.setOnAction(this);
+		GridPane.setConstraints(inputAcceptButton, 0, i +1);
+		grid.getChildren().addAll(inputAcceptButton);
+
+		invoiceItemScene = new Scene(grid, 500, 500);
 	}
-	
-	
+
+
 	public String getDateTime()
 	{
-		   DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-		   //get current date time with Date()
-		   Date date = new Date();
-		   return dateFormat.format(date);
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		//get current date time with Date()
+		Date date = new Date();
+		return dateFormat.format(date);
 	}
-	
+
 	public void reset()
 	{
-			comboBoxList.clear();
-			textFields.clear();
-			if(!(inputSelection.equalsIgnoreCase("insertLoginInfo")) && !(inputSelection.equalsIgnoreCase("backToStart"))){
-				homeSceneLayout();
-				window.setScene(HomeScene);
+		comboBoxList.clear();
+		textFields.clear();
+		if(!(inputSelection.equalsIgnoreCase("insertLoginInfo")) && !(inputSelection.equalsIgnoreCase("backToStart"))){
+			homeSceneLayout();
+			window.setScene(HomeScene);
+		}
+		else{
+			try{
+				myConn.close();
 			}
-			else{
-				try{
-						myConn.close();
-				}
-				catch(Exception e)
-				{
-					AlertBox alertbox = new AlertBox();
-					alertbox.display("Couldnt Close Connection.", e.toString());
-					e.printStackTrace();
-				}
-				startSceneLayout();
-				window.setScene(startScene);
+			catch(Exception e)
+			{
+				AlertBox alertbox = new AlertBox();
+				alertbox.display("Couldnt Close Connection.", e.toString());
+				e.printStackTrace();
 			}
+			startSceneLayout();
+			window.setScene(startScene);
+		}
 	}
-	
+
 
 
 }
