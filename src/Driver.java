@@ -20,6 +20,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 
@@ -1328,7 +1329,7 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 						//get customer number
 						int customerNumber = holtDistributorFunctions.getCustomerNumber(myStmt, textFields.get(2).getText());
 						//insert customersalesinfo as 0's
-						holtDistributorFunctions.insertCustomerSalesInfo(myStmt, customerNumber, 0, 0, 0, 0, 0, 0);
+						holtDistributorFunctions.insertCustomerSalesInfo(myStmt, customerNumber, 0, 0, 0, 5000, 0, 0);
 						//insert userNameInfo
 						holtDistributorFunctions.insertUserLoginInfo(myStmt, customerNumber, textFields.get(0).getText(), textFields.get(1).getText());
 						reset();
@@ -2067,7 +2068,7 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 						);
 			}					
 			GridPane.setConstraints(inputComboBox, 2, i);
-
+			inputComboBox.setPromptText("0");
 
 			grid.getChildren().addAll(inputComboBox, itemLabel, shipQuantityLabel);
 			comboBoxList.add(inputComboBox);
