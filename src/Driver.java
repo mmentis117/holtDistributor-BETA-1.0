@@ -754,7 +754,7 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 					//check if name exists
 					String territoryName = textFields.get(1).getText();
 					
-					//get territory table
+					//get territory table 
 					String territoryTable[][] = holtDistributorFunctions.getTerritoryTable(myStmt);
 					
 					boolean territoryExist = false;
