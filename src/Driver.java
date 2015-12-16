@@ -750,8 +750,31 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 			{
 				try{
 					//Table Scene Layout
+					
+					//check if name exists
+					String territoryName = textFields.get(1).getText();
+					
+					//get territory table
+					String territoryTable[][] = holtDistributorFunctions.getTerritoryTable(myStmt);
+					
+					boolean territoryExist = false;
+					for(int i = 1; !(territoryTable[i][0]  == null); i++)
+					{
+						if(territoryName.equals(territoryTable[i][1]))
+						{
+							territoryExist = true;
+						}
+					}	
+
+					if(!territoryExist)
+					{
 					holtDistributorFunctions.insertTerritory(myStmt, Integer.parseInt(textFields.get(0).getText()), textFields.get(1).getText());
 					reset();
+					}
+					else{
+						AlertBox alertbox = new AlertBox();
+						alertbox.display("Invalid Entry", "This territory name already exists.");
+					}
 				}
 				catch(Exception exc){
 					AlertBox alertbox = new AlertBox();
@@ -765,9 +788,31 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 					//Table Scene Layout				
 					String territoryNum = comboBoxList.get(0).getValue();
 					territoryNum = territoryNum.substring(0 , territoryNum.indexOf(' '));
+					
+					//check if name exists
+					String territoryName = textFields.get(0).getText();
+					
+					//get territory table
+					String territoryTable[][] = holtDistributorFunctions.getTerritoryTable(myStmt);
+					
+					boolean territoryExist = false;
+					for(int i = 1; !(territoryTable[i][0]  == null); i++)
+					{
+						if(territoryName.equals(territoryTable[i][1]))
+						{
+							territoryExist = true;
+						}
+					}	
 
-					holtDistributorFunctions.updateTerritoryByNumber(myStmt, Integer.parseInt(territoryNum) , textFields.get(0).getText());
-					reset();
+					if(!territoryExist)
+					{
+						holtDistributorFunctions.updateTerritoryByNumber(myStmt, Integer.parseInt(territoryNum) , textFields.get(0).getText());
+						reset();
+					}
+					else{
+						AlertBox alertbox = new AlertBox();
+						alertbox.display("Invalid Entry", "This territory name already exists.");
+					}
 				}
 				catch(Exception exc){
 					AlertBox alertbox = new AlertBox();
@@ -1441,7 +1486,7 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 							holtDistributorFunctions.sendThroughCustomerInvoiceInfo(myStmt, dateTime , orderNumber, shipCharge, tax, 0);
 
 							invoiceNumber = holtDistributorFunctions.getInvoiceNumber(myStmt, dateTime , orderNumber, shipCharge, tax);
-						}
+						
 
 						//Update Ship Quantity in order and item table
 						for(int i = 1; !(orderAndItemTable[i][0]  == null); i++)
@@ -1507,6 +1552,8 @@ public class Driver extends Application implements EventHandler<ActionEvent>{
 
 						//Update Invoice Table invoice total (shipping and tax values)
 						holtDistributorFunctions.updateInvoiceInfoByNumber(myStmt, invoiceNumber, invoiceTableTotal + shipCharge + tax);
+						
+					}
 
 						//Go back to home screen
 						reset();
